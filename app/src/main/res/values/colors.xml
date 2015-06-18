@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#AB47BC</color>
-    <color name="colorPrimaryDark">#9c27b0</color>
-    <color name="colorAccent">#E1BEE7</color>
-    <color name="colorTextPrimary">#353F50</color>
-    <color name="colorWhite">#FFFFFF</color>
-    <color name="lightGray">#eee</color>
-    <color name="drawerItemChecked">#FFF</color>
-    <color name="drawerItemDefault">#DDD</color>
-
+    <color name="purplePrimary">#AB47BC</color>
+    <color name="purplePrimaryDark">#9c27b0</color>
+    <color name="purpleAccent">#E1BEE7</color>
+    <!--<color name="colorTextPrimary">#353F50</color>-->
+    <!--<color name="colorWhite">#FFFFFF</color>-->
+    <!--<color name="lightGray">#eee</color>-->
+    <!--<color name="drawerItemChecked">#FFF</color>-->
+    <!--<color name="drawerItemDefault">#DDD</color>-->
 </resources>

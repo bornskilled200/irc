@@ -5,8 +5,8 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.blackcj.designsupportexample"
-        minSdkVersion 9
+        applicationId "com.unseenspace.archery"
+        minSdkVersion 7
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -22,6 +22,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.github.machinarius:preferencefragment:0.1.1'
 }

@@ -2,30 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item
+        <item android:title="@string/home"
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_home_white_24dp"
-            android:title="Home" />
-        <item
-            android:id="@+id/nav_messages"
-            android:icon="@drawable/ic_mail_white_24dp"
-            android:title="Messages" />
-        <item
-            android:id="@+id/nav_friends"
-            android:icon="@drawable/ic_group_white_24dp"
-            android:title="Friends" />
-        <item
-            android:id="@+id/nav_shopping"
-            android:icon="@drawable/ic_shopping_cart_white_24dp"
-            android:title="Shopping" />
+            android:icon="@drawable/ic_home_white_24dp" />
+        <item android:title="@string/home_dark"
+            android:id="@+id/nav_dark"
+            android:icon="@drawable/ic_home_white_24dp" />
     </group>
 
-    <item android:title="Preferences">
+    <item android:title="@string/preferences">
         <menu>
-            <item
-                android:title="Notifications" />
-            <item
-                android:title="Account" />
+            <item android:title="@string/settings" android:id="@+id/nav_settings"/>
         </menu>
     </item>
 

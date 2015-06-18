@@ -5,25 +5,28 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinatorLayout"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity"
-        android:background="@color/lightGray">
+        android:orientation="vertical"
+         >
+        <!--android:background="@color/background_floating_material_dark"-->
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        </android.support.v4.view.ViewPager>
+            android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+             />
+        <!--app:layout_scrollFlags="scroll|enterAlways"-->
 
-        <include
-            layout="@layout/toolbar"/>
 
-    </android.support.design.widget.CoordinatorLayout>
+            <fragment android:name="com.unseenspace.archery.ShootsFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/fragment_shoots" />
+
+    </LinearLayout>
 
     <!-- The navigation drawer -->
     <android.support.design.widget.NavigationView
@@ -33,8 +36,8 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:itemIconTint="@drawable/drawer_item"
-        app:itemTextColor="@drawable/drawer_item"
+
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_menu"/>
+        app:menu="@menu/drawer_menu"/><!--app:itemTextColor="@drawable/drawer_item"-->
 </android.support.v4.widget.DrawerLayout>
 

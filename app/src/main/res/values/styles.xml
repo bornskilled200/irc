@@ -1,22 +1,43 @@
 <resources>
 
+    <attr format="reference" name="cardStyle"/>
+    <attr format="reference" name="cardImage"/>
+
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="AppTheme.Base">
+    <style name="AppTheme" parent="AppTheme.Light.Purple">
         <!-- Customize your theme here. -->
     </style>
-    <style name="AppTheme.Base" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorWhite</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
+
+
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="cardStyle">@style/CardView.Dark</item>
+        <item name="cardImage">@drawable/ic_adjust_white_24dp</item>
+        <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
     </style>
 
-    <style name="Log" parent="AppTheme">
-        <item name="android:typeface">monospace</item>
-        <item name="android:padding">@dimen/margin_medium</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
-        <item name="android:lineSpacingMultiplier">1.1</item>
+    <style name="AppTheme.Dark.Purple">
+        <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
+        <item name="colorAccent">@color/purpleAccent</item>
+        <item name="cardStyle">@style/CardView.Dark</item>
+        <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
     </style>
+
+
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="cardStyle">@style/CardView.Light</item>
+        <item name="cardImage">@drawable/ic_adjust_black_24dp</item>
+        <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
+    </style>
+
+    <style name="AppTheme.Light.Purple">
+        <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
+        <item name="colorAccent">@color/purpleAccent</item>
+        <item name="cardStyle">@style/CardView.Light</item>
+        <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
+    </style>
+
 </resources>

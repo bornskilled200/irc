@@ -4,7 +4,7 @@
         android:key="pref_theme"
         android:title="@string/pref_theme"
         android:summary="@string/pref_theme_summary"
-        android:defaultValue="true" />
+        android:defaultValue="false" />
     <ListPreference
         android:dependency="pref_theme"
         android:key="pref_themeType"

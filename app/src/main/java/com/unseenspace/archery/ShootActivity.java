@@ -23,7 +23,7 @@ import com.unseenspace.archery.adapters.TabPagerAdapter;
 /**
  * Created by chris.black on 6/11/15.
  */
-public class ShootActivity extends AppCompatActivity {
+public class ShootActivity extends BaseActivity {
 
     private static final String EXTRA_IMAGE = "ShootActivity:image";
     private DrawerLayout mDrawerLayout;

@@ -1,6 +1,7 @@
 package com.unseenspace.archery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -12,7 +13,7 @@ import android.view.View;
 /**
  * Created by madsk_000 on 6/18/2015.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
     private static final String EXTRA_IMAGE = "SettingsActivity:image";
 
     @Override

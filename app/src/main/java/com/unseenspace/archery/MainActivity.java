@@ -1,6 +1,7 @@
 package com.unseenspace.archery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,19 +10,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
+    private final static String TAG = MainActivity.class.getName();
     private DrawerLayout mDrawerLayout;
-    private static int themeId = R.style.AppTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(themeId);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             setupDrawerContent(navigationView);
         }
     }
+
 
     /**
      * android.R.id.home (Hamburger/Settings button)
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         mDrawerLayout.closeDrawers();
 
-                        setTheme(menuItem);
+                        //setTheme(menuItem);
 
                         if (menuItem.getItemId() == R.id.nav_settings)
                         {
@@ -82,23 +86,23 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void setTheme(MenuItem menuItem)
-    {
-        switch (menuItem.getItemId())
-        {
-            case R.id.nav_home:
-                themeId = R.style.AppTheme_Light_Purple;
-                break;
-            case R.id.nav_dark:
-                themeId = R.style.AppTheme_Dark_Purple;
-                break;
-            default:
-                return;
-        }
-
-        finish();
-        startActivity(new Intent(this, getClass()));
-    }
+    //private void setTheme(MenuItem menuItem)
+    //{
+    //    switch (menuItem.getItemId())
+    //    {
+    //        case R.id.nav_home:
+    //            themeId = R.style.AppTheme_Light_Purple;
+    //            break;
+    //        case R.id.nav_dark:
+    //            themeId = R.style.AppTheme_Dark_Purple;
+    //            break;
+    //        default:
+    //            return;
+    //    }
+//
+    //    finish();
+    //    startActivity(new Intent(this, getClass()));
+    //}
 
     //No need to have a settings in the action bar. The menu/triple dots button
     //@Override

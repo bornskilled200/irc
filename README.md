@@ -1,18 +1,7 @@
-# Design Support Example
-Example project using the Android Design Support Library. This demo should work all the way back to Android 2.3.3. 
+# Unseen IRC
+A simple IRC app for Android
+Because it is so simple, I will also try to keep it in line with the Material design philosophy
 
-![Animated Gif](demo.gif)&nbsp;&nbsp;![Menu](menu.png)&nbsp;&nbsp;![Home](home.png)
+Based on [DesignSupportExample]
 
-# Support Libraries
-- appcompat-v7 (22.2.0)
-- design (22.2.0)
-- recyclerview-v7 (22.2.0)
-
-# Features
-- DrawerLayout
-- CoordinatorLayout
-- ViewPager
-- NavigationView
-- SwipeRefreshLayout
-- RecyclerView
-- Activity animation (5.0+ devices)
+[DesignSupportExample]: https://github.com/blackcj/DesignSupportExample

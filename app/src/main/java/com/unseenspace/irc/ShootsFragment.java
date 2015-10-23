@@ -1,4 +1,4 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.app.Activity;
 import android.content.Context;
@@ -70,7 +70,7 @@ public class ShootsFragment extends Fragment {
 
             @Override
             public void onBindViewHolder(ShootCardHolder holder, int position) {
-                holder.target.setImageDrawable(getDrawable(R.attr.cardImage));//R.drawable.ic_adjust_white_48dp);
+                holder.target.setImageDrawable(getDrawable(R.attr.itemImage));//R.drawable.ic_adjust_white_48dp);
                 holder.name.setText("Shoot "  + position);
                 holder.score.setText("Score: " + (int) (Math.random()*360));
             }
@@ -107,7 +107,7 @@ public class ShootsFragment extends Fragment {
         private final TextView score;
 
         public ShootCardHolder(ViewGroup parent) {
-            super(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_shoot, parent, false));
+            super(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shoot, parent, false));
 
             target = (ImageView) itemView.findViewById(R.id.shoot_target);
             name = (TextView) itemView.findViewById(R.id.shoot_name);

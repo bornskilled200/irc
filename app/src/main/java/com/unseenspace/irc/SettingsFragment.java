@@ -1,4 +1,4 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,7 +29,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     public static int getTheme(SharedPreferences preferences) {
         if (preferences.getBoolean("pref_theme", false) == false)
-            return R.style.AppTheme;
+            return R.style.AppTheme_Light;
 
         String string = preferences.getString("pref_themeType", "Light");
         switch (string)
@@ -40,6 +40,6 @@ public class SettingsFragment extends PreferenceFragment {
                 return R.style.AppTheme_Dark_Purple;
         }
         Log.e(TAG, "Unknown theme type, " + string);
-        return R.style.AppTheme;
+        return R.style.AppTheme_Light;
     }
 }

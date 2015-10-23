@@ -1,4 +1,4 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.support.v4.app.Fragment;
 /**

@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <fragment android:name="com.unseenspace.archery.SettingsFragment"
+    <fragment android:name="com.unseenspace.irc.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/fragment_settings" />

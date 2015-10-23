@@ -1,14 +1,11 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 /**
  * Created by madsk_000 on 6/18/2015.

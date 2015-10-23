@@ -1,13 +1,13 @@
-package com.unseenspace.archery.adapters;
+package com.unseenspace.irc.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.unseenspace.archery.DetailFragment;
-import com.unseenspace.archery.PageFragment;
-import com.unseenspace.archery.ScoreFragment;
-import com.unseenspace.archery.TargetFragment;
+import com.unseenspace.irc.DetailFragment;
+import com.unseenspace.irc.PageFragment;
+import com.unseenspace.irc.ScoreFragment;
+import com.unseenspace.irc.TargetFragment;
 
 /**
  * Created by chris.black on 6/11/15.

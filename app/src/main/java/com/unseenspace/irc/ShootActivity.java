@@ -1,4 +1,4 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.content.Intent;
 import android.os.Build;
@@ -18,7 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.unseenspace.archery.adapters.TabPagerAdapter;
+import com.unseenspace.irc.adapters.TabPagerAdapter;
 
 /**
  * Created by chris.black on 6/11/15.

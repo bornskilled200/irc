@@ -1,4 +1,4 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

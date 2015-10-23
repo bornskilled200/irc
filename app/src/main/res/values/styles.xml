@@ -1,18 +1,15 @@
 <resources>
 
+    <!--In use when Cards are relevant
     <attr format="reference" name="cardStyle"/>
-    <attr format="reference" name="cardImage"/>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="AppTheme.Light.Purple">
-        <!-- Customize your theme here. -->
-    </style>
-
-
+    <attr format="reference" name="cardImage"/>-->
+    <attr format="reference" name="itemImage"/>
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <!-- In use when Cards are relevant
         <item name="cardStyle">@style/CardView.Dark</item>
-        <item name="cardImage">@drawable/ic_adjust_white_24dp</item>
+        <item name="cardImage">@drawable/ic_adjust_white_24dp</item>-->
+        <item name="itemImage">@drawable/ic_adjust_white_48dp</item>
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
     </style>
 
@@ -20,15 +17,18 @@
         <item name="colorPrimary">@color/purplePrimary</item>
         <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
         <item name="colorAccent">@color/purpleAccent</item>
-        <item name="cardStyle">@style/CardView.Dark</item>
+        <!-- In use when Cards are relevant
+        <item name="cardStyle">@style/CardView.Dark</item>-->
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
     </style>
 
 
 
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- In use when Cards are relevant
         <item name="cardStyle">@style/CardView.Light</item>
-        <item name="cardImage">@drawable/ic_adjust_black_24dp</item>
+        <item name="cardImage">@drawable/ic_adjust_black_24dp</item>-->
+        <item name="itemImage">@drawable/ic_adjust_black_48dp</item>
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
     </style>
 
@@ -36,7 +36,8 @@
         <item name="colorPrimary">@color/purplePrimary</item>
         <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
         <item name="colorAccent">@color/purpleAccent</item>
-        <item name="cardStyle">@style/CardView.Light</item>
+        <!--In use when Cards are relevant
+        <item name="cardStyle">@style/CardView.Light</item>-->
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
     </style>
 

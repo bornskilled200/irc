@@ -1,6 +1,5 @@
-package com.unseenspace.archery;
+package com.unseenspace.irc;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 /**

@@ -21,7 +21,7 @@
         <!--app:layout_scrollFlags="scroll|enterAlways"-->
 
 
-            <fragment android:name="com.unseenspace.archery.ShootsFragment"
+            <fragment android:name="com.unseenspace.irc.ShootsFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/fragment_shoots" />

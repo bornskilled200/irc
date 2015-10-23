@@ -4,7 +4,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.unseenspace.archery.DetailFragment;
 import com.unseenspace.archery.PageFragment;
+import com.unseenspace.archery.ScoreFragment;
+import com.unseenspace.archery.TargetFragment;
 
 /**
  * Created by chris.black on 6/11/15.
@@ -34,6 +37,15 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        switch (position)
+        {
+            case 0:
+                return TargetFragment.create();
+            case 1:
+                return DetailFragment.create();
+            case 2:
+                return ScoreFragment.create();
+        }
         return PageFragment.create(position + 1);
     }
 }

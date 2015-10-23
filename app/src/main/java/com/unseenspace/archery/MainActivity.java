@@ -26,9 +26,9 @@ public class MainActivity extends BaseActivity {
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
+        if (toolbar != null)
             setSupportActionBar(toolbar);
-        }
+
 
 
         final ActionBar ab = getSupportActionBar();
@@ -41,9 +41,8 @@ public class MainActivity extends BaseActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
+        if (navigationView != null)
             setupDrawerContent(navigationView);
-        }
     }
 
 

@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
-        android:key="pref_theme"
-        android:title="@string/pref_theme"
-        android:summary="@string/pref_theme_summary"
-        android:defaultValue="false" />
     <ListPreference
-        android:dependency="pref_theme"
-        android:key="pref_themeType"
+        android:key="pref_theme"
         android:title="@string/pref_themeType"
         android:dialogTitle="@string/pref_themeType"
-        android:entries="@array/pref_themeTypes_entries"
-        android:entryValues="@array/pref_themeTypes_values"
+        android:entries="@array/pref_theme_entries"
+        android:entryValues="@array/pref_theme_values"
         android:defaultValue="@string/pref_themeTypes_default" />
 </PreferenceScreen>

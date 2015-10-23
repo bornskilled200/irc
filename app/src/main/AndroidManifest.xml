@@ -17,14 +17,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.unseenspace.irc.ShootActivity"
-            android:label="@string/app_name"
-            android:parentActivityName="com.unseenspace.irc.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.unseenspace.irc.MainActivity"/>
-        </activity>
-        <activity
             android:name="com.unseenspace.irc.SettingsActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.unseenspace.irc.MainActivity">

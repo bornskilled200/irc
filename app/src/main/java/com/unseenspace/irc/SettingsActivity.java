@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 /**
+ * activity for settings
+ * needed for settings fragment
  * Created by madsk_000 on 6/18/2015.
  */
 public class SettingsActivity extends BaseActivity {
@@ -21,14 +23,12 @@ public class SettingsActivity extends BaseActivity {
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
+        if (toolbar != null)
             setSupportActionBar(toolbar);
-        }
 
         final ActionBar ab = getSupportActionBar();
-        if(ab != null) {
+        if(ab != null)
             ab.setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     public static void launch(AppCompatActivity activity)

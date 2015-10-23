@@ -10,7 +10,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends BaseActivity {
 
-    private final static String TAG = MainActivity.class.getName();
+    private final static String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
 
     @Override

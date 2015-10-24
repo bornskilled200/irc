@@ -1,10 +1,9 @@
 package com.unseenspace.irc;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.github.machinarius.preferencefragment.PreferenceFragment;
@@ -52,9 +51,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getKey().equals("pref_theme"))
         {
-            FragmentActivity activity = getActivity();
+            Activity activity = getActivity();
             activity.finish();
             startActivity(activity.getIntent());
+
+            for (activity = activity.getParent(); activity != null; activity = activity.getParent())
+                if (activity instanceof BaseActivity)
+                    ((BaseActivity) activity).refreshTheme();
         }
         return true;
     }

@@ -13,4 +13,8 @@
     <string name="pref_themeTypes_default">Default</string>
     <string name="settings">Settings</string>
     <string name="shoot_target_desc">Target Icon</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">password</string>
+    <string name="server_hint">Server</string>
+    <string name="port_hint">default: 6667</string>
 </resources>

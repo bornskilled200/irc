@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected SharedPreferences preferences;
+    private boolean refreshTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,5 +20,20 @@ public abstract class BaseActivity extends AppCompatActivity {
         setTheme(SettingsFragment.getTheme(preferences));
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        if (refreshTheme)
+        {
+            finish();
+            startActivity(getIntent());
+        }
+        else
+            super.onResume();
+    }
+
+    public void refreshTheme() {
+        refreshTheme = true;
     }
 }

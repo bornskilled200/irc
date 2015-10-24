@@ -1,6 +1,5 @@
 package com.unseenspace.irc;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -19,14 +18,14 @@ import android.widget.TextView;
 /**
  * Created by chris.black on 6/11/15.
  */
-public class ShootsFragment extends Fragment {
+public class IrcListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context context;
     //protected RecyclerViewAdapter.OnItemClickListener mCallback;
 
-    public static ShootsFragment create() {
+    public static IrcListFragment create() {
         Bundle args = new Bundle();
-        ShootsFragment fragment = new ShootsFragment();
+        IrcListFragment fragment = new IrcListFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -40,17 +39,17 @@ public class ShootsFragment extends Fragment {
     {
         int[] attrs = new int[] { attr /* index 0 */};
 
-// Obtain the styled attributes. 'themedContext' is a context with a
-// theme, typically the current Activity (i.e. 'this')
+        // Obtain the styled attributes. 'themedContext' is a context with a
+        // theme, typically the current Activity (i.e. 'this')
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs);
 
-// To get the value of the 'listItemBackground' attribute that was
-// set in the theme used in 'themedContext'. The parameter is the index
-// of the attribute in the 'attrs' array. The returned Drawable
-// is what you are after
+        // To get the value of the 'listItemBackground' attribute that was
+        // set in the theme used in 'themedContext'. The parameter is the index
+        // of the attribute in the 'attrs' array. The returned Drawable
+        // is what you are after
         Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
 
-// Finally, free the resources used by TypedArray
+        // Finally, free the resources used by TypedArray
         ta.recycle();
 
         return drawableFromTheme;
@@ -58,11 +57,13 @@ public class ShootsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_page, container, false);
+        View view = inflater.inflate(R.layout.fragment_irc_list, container, false);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         RecyclerView.Adapter<ShootCardHolder> adapter = new RecyclerView.Adapter<ShootCardHolder>() {
+            private Drawable drawable = getDrawable(R.attr.itemImage);
+
             @Override
             public ShootCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 return new ShootCardHolder(parent);
@@ -70,8 +71,8 @@ public class ShootsFragment extends Fragment {
 
             @Override
             public void onBindViewHolder(ShootCardHolder holder, int position) {
-                holder.target.setImageDrawable(getDrawable(R.attr.itemImage));//R.drawable.ic_adjust_white_48dp);
-                holder.name.setText("Shoot "  + position);
+                holder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
+                holder.name.setText("Shoot " + position);
                 holder.score.setText("Score: " + (int) (Math.random()*360));
             }
 
@@ -83,7 +84,6 @@ public class ShootsFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
-        //mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -116,9 +116,9 @@ public class ShootsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        context = activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
         //if(activity instanceof RecyclerViewAdapter.OnItemClickListener) {
         //    mCallback = (RecyclerViewAdapter.OnItemClickListener)activity;
         //}

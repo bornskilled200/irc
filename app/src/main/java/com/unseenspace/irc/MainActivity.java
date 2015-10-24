@@ -70,16 +70,18 @@ public class MainActivity extends BaseActivity {
                         //setTheme(menuItem);
 
                         if (menuItem.getItemId() == R.id.nav_settings)
-                        {
                             SettingsActivity.launch(MainActivity.this);
 
-                        }
                         return true;
                     }
                 });
     }
 
-    //private void setTheme(MenuItem menuItem)
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+//private void setTheme(MenuItem menuItem)
     //{
     //    switch (menuItem.getItemId())
     //    {

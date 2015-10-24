@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginBottom="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginRight="16dp" >
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin" >
 
     <ImageView
         android:id="@+id/shoot_target"
         android:contentDescription="@string/shoot_target_desc"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_margin="16dp"/>
+        android:layout_width="@dimen/list_icon"
+        android:layout_height="@dimen/list_icon"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"/>
 
     <TextView
         android:id="@+id/shoot_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/shoot_target"
         android:layout_toRightOf="@+id/shoot_target"
-        android:textSize="30sp"/>
+        android:textAppearance="@style/TextAppearance.Item.Title"/>
 
     <TextView
         android:id="@+id/shoot_score"
@@ -35,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/shoot_name"
         android:layout_toEndOf="@+id/shoot_target"
-        android:layout_toRightOf="@+id/shoot_target" />
+        android:layout_toRightOf="@+id/shoot_target"
+        android:textAppearance="@style/TextAppearance.Item.Subtitle"/>
 
 </RelativeLayout>

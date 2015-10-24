@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.unseenspace.archery"
-        minSdkVersion 7
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -42,6 +42,6 @@ dependencies {
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
 
-    compile 'org.pircbotx:pircbotx:2.0.1'
+    compile 'org.pircbotx:pircbotx:2.1-SNAPSHOT'
     compile 'ch.qos.logback:logback-classic:1.1.3'
 }

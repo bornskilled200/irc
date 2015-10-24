@@ -35,9 +35,8 @@ public class IrcListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private Drawable getDrawable(int attr)
-    {
-        int[] attrs = new int[] { attr /* index 0 */};
+    private Drawable getDrawable(int attr) {
+        int[] attrs = new int[]{attr /* index 0 */};
 
         // Obtain the styled attributes. 'themedContext' is a context with a
         // theme, typically the current Activity (i.e. 'this')
@@ -61,27 +60,34 @@ public class IrcListFragment extends Fragment {
 
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
-        RecyclerView.Adapter<ShootCardHolder> adapter = new RecyclerView.Adapter<ShootCardHolder>() {
+        recyclerView.setAdapter(new RecyclerView.Adapter<ShootCardHolder>() {
+            private View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    IrcActivity.launch(getActivity(), v.findViewById(R.id.shoot_target));
+                }
+            };
             private Drawable drawable = getDrawable(R.attr.itemImage);
 
             @Override
             public ShootCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                return new ShootCardHolder(parent);
+                ShootCardHolder shootCardHolder = new ShootCardHolder(parent);
+                shootCardHolder.itemView.setOnClickListener(listener);
+                return shootCardHolder;
             }
 
             @Override
             public void onBindViewHolder(ShootCardHolder holder, int position) {
                 holder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
                 holder.name.setText("Shoot " + position);
-                holder.score.setText("Score: " + (int) (Math.random()*360));
+                holder.score.setText("Score: " + (int) (Math.random() * 360));
             }
 
             @Override
             public int getItemCount() {
                 return 20;
             }
-        };
-        recyclerView.setAdapter(adapter);
+        });
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

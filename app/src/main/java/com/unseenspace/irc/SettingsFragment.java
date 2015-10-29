@@ -3,28 +3,24 @@ package com.unseenspace.irc;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
+import android.support.v7.preference.Preference;
 import android.util.Log;
 
-import com.github.machinarius.preferencefragment.PreferenceFragment;
+import android.support.v7.preference.PreferenceFragmentCompatFix;
+//import android.support.v7.preference.PreferenceFragmentCompat;
+//import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 /**
  * fragment for preferences/settings
  * main logic and where you can get values from preferences
  * Created by madsk_000 on 6/18/2015.
  */
-public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompatFix implements Preference.OnPreferenceChangeListener {
     private final static String TAG = "SettingsFragment";
     public final static String SETTINGS_SHARED_PREFERENCES_FILE_NAME = TAG + ".SETTINGS_SHARED_PREFERENCES_FILE_NAME";
 
-    public static SettingsFragment create() {
-        return new SettingsFragment();
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public void onCreatePreferences(Bundle bundle, String rootKey) {
         getPreferenceManager().setSharedPreferencesName(SETTINGS_SHARED_PREFERENCES_FILE_NAME);
 
         // Load the preferences from an XML resource
@@ -48,7 +44,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     }
 
     @Override
-    public boolean onPreferenceChange(Preference preference, Object o) {
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference.getKey().equals("pref_theme"))
         {
             Activity activity = getActivity();

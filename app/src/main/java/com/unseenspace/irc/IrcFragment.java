@@ -1,17 +1,14 @@
 package com.unseenspace.irc;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,10 +19,10 @@ import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.DisconnectEvent;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.pircbotx.hooks.events.VoiceEvent;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -33,45 +30,54 @@ import java.util.Locale;
 /**
  * Created by madsk_000 on 10/23/2015.
  */
-public class IrcActivity extends BaseActivity implements TextToSpeech.OnInitListener {
+public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener {
 
-    private final static String TAG = "IrcActivity";
+    private final static String TAG = "IrcFragment";
     private static final String EXTRA_IMAGE = "ShootActivity:image";
-    private DrawerLayout drawerLayout;
+    private static final String USERNAME = "USERNAME_PARAMETER";
+    private static final String PASSWORD = "PASSWORD_PARAMETER";
 
     private TextView textBox;
     private EditText messageBox;
     private PircBotX bot;
-    private boolean ttsInitialized;
     private TextToSpeech tts;
     private Configuration configuration;
 
+    public static IrcFragment create(String username, String password) {
+        Log.v(TAG, "create(" + username + ", String password)");
+
+        IrcFragment ircFragment = new IrcFragment();
+
+        // Get arguments passed in, if any
+        Bundle args = ircFragment.getArguments();
+        if (args == null)
+            args = new Bundle();
+
+        args.putString(USERNAME, username);
+        args.putString(PASSWORD, password);
+        ircFragment.setArguments(args);
+
+        return ircFragment;
+    }
+
+    private String getPassword()
+    {
+        Bundle arguments = getArguments();
+        if (arguments == null)
+            return "";
+        String string = arguments.getString(PASSWORD);
+        return string == null? "" : string;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_irc);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_irc, container, false);
 
+        textBox = (TextView) view.findViewById(R.id.textBox);
+        messageBox = (EditText) view.findViewById(R.id.messageBox);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null)
-            setSupportActionBar(toolbar);
-
-        final ActionBar ab = getSupportActionBar();
-        if(ab != null)
-            ab.setDisplayHomeAsUpEnabled(true);
-
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null)
-            setupDrawerContent(navigationView, drawerLayout, this);
-
-
-        textBox = (TextView) findViewById(R.id.textBox);
-        messageBox = (EditText) findViewById(R.id.messageBox);
-
-        tts = new TextToSpeech(this, this);
+        tts = new TextToSpeech(getActivity(), this);
 
         configuration = new Configuration.Builder()
                 .setAutoNickChange(false) //Twitch doesn't support multiple users
@@ -81,45 +87,66 @@ public class IrcActivity extends BaseActivity implements TextToSpeech.OnInitList
 
                 .addServer("irc.twitch.tv")
                 .setName("unseenspace") //Your twitch.tv username
-                .setServerPassword(preferences.getString("password", "default")) //Your oauth password from http://twitchapps.com/tmi
+                .setServerPassword(getPassword()) //Your oauth password from http://twitchapps.com/tmi
                 .addAutoJoinChannel("#unseenspace") //Some twitch channel
 
                 .addListener(new ListenerAdapter(){
                     @Override
                     public void onConnect(ConnectEvent event) throws Exception {
-                        speak("Connected", true);
+                        alert("Connected", true);
                     }
 
                     @Override
                     public void onJoin(JoinEvent event) throws Exception {
-                        speak(event.getUser().getNick() + " joined", true);
+                        alert(event.getUser().getNick() + " joined", true);
+                    }
+
+                    @Override
+                    public void onDisconnect(DisconnectEvent event) throws Exception {
+                        alert("disconnected", true);
                     }
 
                     @Override
                     public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
-                        speak(event.getMessage(), true);
+                        alert(event.getMessage(), true);
                     }
 
                     @Override
                     public void onMessage(MessageEvent event) throws Exception {
-                        speak(event.getMessage(), true);
+                        alert(event.getMessage(), true);
                     }
                 }).buildConfiguration();
+
+        return view;
     }
 
+    /**
+     * Convenience method for speaking that takes account for API differences between
+     * Pre Lollipop vs Lollipop
+     *
+     * will also take consideration of whether it should speak or just have a bell or no alert
+     * @param text the text that will be spoken
+     * @param add whether to add or delete previous messages
+     */
     @SuppressWarnings("deprecation")
-    public void speak(String text, boolean add)
+    private void alert(String text, boolean add)
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             tts.speak(text, add?TextToSpeech.QUEUE_ADD:TextToSpeech.QUEUE_FLUSH, null, null);
         else
-            tts.speak(text, add?TextToSpeech.QUEUE_ADD:TextToSpeech.QUEUE_FLUSH, null);
+            tts.speak(text, add ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void alert()
+    {
+
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-        if (bot != null)
+        if (bot != null && bot.isConnected())
             bot.send().quitServer();
         bot = null;
         if (tts != null)
@@ -127,35 +154,16 @@ public class IrcActivity extends BaseActivity implements TextToSpeech.OnInitList
         tts = null;
     }
 
-    public static void launch(Activity activity, View transitionView) {
-        Intent intent = new Intent(activity, IrcActivity.class);
-
-        Bundle bundle = null;
-        if (transitionView != null) {
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, transitionView, EXTRA_IMAGE);
-
-            int drawable = R.drawable.ic_adjust_white_48dp;
-            if (transitionView.getTag() instanceof Integer)
-                drawable = (Integer) transitionView.getTag();
-            intent.putExtra(EXTRA_IMAGE, drawable);
-
-            bundle = options.toBundle();
-        }
-
-        ActivityCompat.startActivity(activity, intent, bundle);
-    }
-
     @Override
     public void onInit(int status) {
-        ttsInitialized = true;
         if (status == TextToSpeech.ERROR) {
-            Toast.makeText(this, "Text To Speech failed to initialize", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Text To Speech failed to initialize", Toast.LENGTH_LONG).show();
         } else {
             int code = tts.setLanguage(Locale.US);
             if (code == TextToSpeech.LANG_NOT_SUPPORTED || code == TextToSpeech.LANG_MISSING_DATA)
-                Toast.makeText(this, "Text To Speech failed to initialize", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Text To Speech failed to initialize", Toast.LENGTH_LONG).show();
             else { // EVERYTHING IS OKAY
-                speak("Initialized", true);
+                alert("Initialized", true);
                 bot = new PircBotX(configuration);
                 new Thread(new Runnable() {
                     @Override

@@ -2,12 +2,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
         android:key="pref_theme"
-        android:title="@string/pref_themeType"
-        android:dialogTitle="@string/pref_themeType"
+        android:title="@string/pref_theme"
+        android:dialogTitle="@string/pref_theme"
+        android:summary="%s"
         android:entries="@array/pref_theme_entries"
         android:entryValues="@array/pref_theme_values"
         android:defaultValue="@string/pref_themeTypes_default" />
-    <EditTextPreference android:key="password"
-        android:inputType="textPassword"
-        />
+    <EditTextPreferenceFix android:key="password"
+        android:dialogTitle="@string/pref_password"
+        android:title="@string/pref_password"
+        android:hint="@string/pref_password"
+        android:inputType="textPassword" />
 </PreferenceScreen>

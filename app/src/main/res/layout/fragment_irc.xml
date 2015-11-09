@@ -1,13 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_margin="@dimen/activity_vertical_margin">
 
     <TextView
         android:id="@+id/textBox"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:singleLine="false"
         android:focusable="true" android:focusableInTouchMode="true"/>
 
     <EditText
@@ -16,6 +18,7 @@
         android:layout_height="wrap_content"
         android:inputType="textShortMessage"
         android:hint="@string/message_hint"
+        android:imeOptions="actionSend"
         android:nextFocusUp="@id/messageBox" android:nextFocusLeft="@id/messageBox"
         />
 </LinearLayout>

@@ -1,12 +1,14 @@
 package com.unseenspace.irc;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by chris.black on 6/11/15.
@@ -22,6 +25,7 @@ import android.widget.TextView;
 public class IrcListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View.OnClickListener clickListener;
+    private IrcOpenHelper openHelper;
 
     private Drawable getDrawable(int attr) {
         int[] attrs = new int[]{attr /* index 0 */};
@@ -55,13 +59,33 @@ public class IrcListFragment extends Fragment {
             clickListener = (View.OnClickListener) context;
     }
 
+    private long addIrc(IrcFragment.Template template, String name, String ip, String channel, String username, String password)
+    {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(IrcEntry.COLUMN_TEMPLATE, template.name());
+        values.put(IrcEntry.COLUMN_NAME, name);
+        values.put(IrcEntry.COLUMN_IP, ip);
+        values.put(IrcEntry.COLUMN_CHANNEL, template.getChannel(channel, username));
+        values.put(IrcEntry.COLUMN_USERNAME, username);
+        values.put(IrcEntry.COLUMN_PASSWORD, password);
+
+        // Insert the new row, returning the primary key value of the new row
+        return db.insert(IrcEntry.TABLE_NAME, null, values);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_irc_list, container, false);
 
+        openHelper = new IrcOpenHelper(getActivity());
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
+
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
-        recyclerView.setAdapter(new RecyclerView.Adapter<ShootCardHolder>() {
+        recyclerView.setAdapter(new RecyclerView.Adapter<IrcItemHolder>() {
             private View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -71,14 +95,14 @@ public class IrcListFragment extends Fragment {
             private Drawable drawable = getDrawable(R.attr.itemImage);
 
             @Override
-            public ShootCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                ShootCardHolder shootCardHolder = new ShootCardHolder(parent);
+            public IrcItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                IrcItemHolder shootCardHolder = new IrcItemHolder(parent);
                 shootCardHolder.itemView.setOnClickListener(listener);
                 return shootCardHolder;
             }
 
             @Override
-            public void onBindViewHolder(ShootCardHolder holder, int position) {
+            public void onBindViewHolder(IrcItemHolder holder, int position) {
                 holder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
                 holder.name.setText("Shoot " + position);
                 holder.score.setText("Score: " + (int) (Math.random() * 360));
@@ -90,7 +114,6 @@ public class IrcListFragment extends Fragment {
             }
         });
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -104,16 +127,27 @@ public class IrcListFragment extends Fragment {
             }
         });
 
+        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                createIrc();
+            }
+        });
+
         return view;
     }
 
-    private static class ShootCardHolder extends RecyclerView.ViewHolder {
+    private void createIrc() {
+        Toast.makeText(getActivity(), "creating irc not really", Toast.LENGTH_SHORT).show();
+    }
+
+    private static class IrcItemHolder extends RecyclerView.ViewHolder {
 
         private final ImageView target;
         private final TextView name;
         private final TextView score;
 
-        public ShootCardHolder(ViewGroup parent) {
+        public IrcItemHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shoot, parent, false));
 
             target = (ImageView) itemView.findViewById(R.id.shoot_target);

@@ -55,4 +55,10 @@
     <style name="TextAppearance.Item.Subtitle" parent="TextAppearance.AppCompat.Small">
 
     </style>
+
+    <style name="FloatingActionButton" parent="Widget.Design.FloatingActionButton">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="rippleColor">?attr/colorPrimaryDark</item>
+        <item name="pressedTranslationZ">12dp</item>
+    </style>
 </resources>

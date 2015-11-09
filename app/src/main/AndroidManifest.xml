@@ -26,14 +26,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.unseenspace.irc.MainActivity"/>
         </activity>
-        <activity
-            android:name=".IrcFragment"
-            android:label="@string/app_name"
-            android:parentActivityName="com.unseenspace.irc.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.unseenspace.irc.MainActivity"/>
-        </activity>
     </application>
 
 </manifest>

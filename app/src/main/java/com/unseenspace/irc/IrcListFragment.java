@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.unseenspace.android.Themes;
+
 /**
  * Created by chris.black on 6/11/15.
  */
@@ -26,25 +28,6 @@ public class IrcListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View.OnClickListener clickListener;
     private IrcOpenHelper openHelper;
-
-    private Drawable getDrawable(int attr) {
-        int[] attrs = new int[]{attr /* index 0 */};
-
-        // Obtain the styled attributes. 'themedContext' is a context with a
-        // theme, typically the current Activity (i.e. 'this')
-        TypedArray ta = getContext().getTheme().obtainStyledAttributes(attrs);
-
-        // To get the value of the 'listItemBackground' attribute that was
-        // set in the theme used in 'themedContext'. The parameter is the index
-        // of the attribute in the 'attrs' array. The returned Drawable
-        // is what you are after
-        Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
-
-        // Finally, free the resources used by TypedArray
-        ta.recycle();
-
-        return drawableFromTheme;
-    }
 
     @Override
     public void onDetach() {
@@ -92,7 +75,7 @@ public class IrcListFragment extends Fragment {
                     clickListener.onClick(v);
                 }
             };
-            private Drawable drawable = getDrawable(R.attr.itemImage);
+            private Drawable drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
 
             @Override
             public IrcItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {

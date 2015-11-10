@@ -44,7 +44,6 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
     private static final String TEMPLATE = "TEMPLATE_PARAMETER";
 
     private TextView textBox;
-    private EditText messageBox;
     private PircBotX bot;
     private TextToSpeech tts;
     private Configuration configuration;
@@ -136,7 +135,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
         View view = inflater.inflate(R.layout.fragment_irc, container, false);
 
         textBox = (TextView) view.findViewById(R.id.textBox);
-        messageBox = (EditText) view.findViewById(R.id.messageBox);
+        EditText messageBox = (EditText) view.findViewById(R.id.messageBox);
 
         if (savedInstanceState == null) {
             tts = new TextToSpeech(getActivity(), this);

@@ -1,11 +1,20 @@
 package com.unseenspace.irc;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorDescription;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.unseenspace.android.Themes;
 
 /**
  * common base activity so that themes can be set automagically to all activities i create
@@ -16,14 +25,28 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected SharedPreferences preferences;
     private boolean refreshTheme;
 
+    private Drawable getIconForAccount(Account account, AccountManager manager) {
+        AuthenticatorDescription[] descriptions =  manager.getAuthenticatorTypes();
+        for (AuthenticatorDescription description: descriptions) {
+            if (description.type.equals(account.type)) {
+                PackageManager pm = getPackageManager();
+                return pm.getDrawable(description.packageName, description.iconId, null);
+            }
+        }
+        return null;
+    }
     /**
      * When an item from the settings drawer gets picked
      * @param navigationView
      * @param activity
      */
-    public static void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
+    public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
+        View view = navigationView.inflateHeaderView(R.layout.nav_header);
+        ImageView navImage = (ImageView) view.findViewById(R.id.nav_image);
+        navImage.setColorFilter(Themes.getColor(this, R.attr.colorPrimary));
+
+        navigationView.setCheckedItem(R.id.nav_home);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         menuItem.setChecked(true);

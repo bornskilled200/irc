@@ -108,12 +108,19 @@ public class ApplicationTest {
         Bitmap screenshot = BitmapFactory.decodeFile(screenshot(activity, "screenshot").getCanonicalPath());
 
         assertThat(screenshot.getPixel(0, 0), is(Themes.getColor(activity, R.attr.colorPrimaryDark)));
-        assertThat(screenshot.getPixel(0, getStatusBarHeight(activity)+1), is(Themes.getColor(activity, R.attr.colorPrimary)));
+        assertThat(screenshot.getPixel(0, getStatusBarHeight(activity) + 1), is(Themes.getColor(activity, R.attr.colorPrimary)));
     }
 
 
 
     /* Utility Functions */
+
+    /**
+     * Rotate the device given it's activity and requestion Orientation (@see ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+     * @param activity the current activity
+     * @param requestedOrientation an orientation from ActivityInfo.SCREEN*
+     * @return the activity that gets created/reset because of the orientation change
+     */
     @SuppressWarnings("unchecked")
     private static <T extends Activity> T rotate(T activity, int requestedOrientation)  {
         activity.setRequestedOrientation(requestedOrientation);
@@ -123,6 +130,13 @@ public class ApplicationTest {
         return activity;
     }
 
+    /**
+     * a different approach than (@see Spoon.screenshot)
+     * reflectively checks for a method in the stacktrace that has a @Test annotation
+     * @param activity the currente activity that wants to be screenshotted
+     * @param tag a tag for later inspection, must only contain [A-Za-z0-9._-]
+     * @return the file pointing to the screenshot
+     */
     private static File screenshot(Activity activity, String tag) {
         StackTraceElement testClass = findTestClassTraceElement(Thread.currentThread().getStackTrace());
         String className = testClass.getClassName().replaceAll("[^A-Za-z0-9._-]", "_");
@@ -130,6 +144,11 @@ public class ApplicationTest {
         return Spoon.screenshot(activity, tag, className, methodName);
     }
 
+    /**
+     * helper method for screenshot
+     * @param trace
+     * @return
+     */
     private static StackTraceElement findTestClassTraceElement(StackTraceElement[] trace) {
         for (int i = trace.length - 1; i >= 0; i--) {
             StackTraceElement element = trace[i];
@@ -149,6 +168,12 @@ public class ApplicationTest {
         throw new IllegalArgumentException("Could not find test class!");
     }
 
+    /**
+     * returns the current activity
+     * will not work if the screen device is off
+     * mainly used as a work around when you change orientation until it is fixed in ActivityTestRule
+     * @return the current foreground activity
+     */
     public static Activity getCurrentActivity(){
         final Activity[] currentActivity = new Activity[1];
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -165,14 +190,29 @@ public class ApplicationTest {
         return currentActivity[0];
     }
 
+    /**
+     * http://stackoverflow.com/a/17880012/1036748
+     * @param dp given dp that will be converted to pixels
+     * @return the value of dp in pixels
+     */
     public static int dpToPx(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
+    /**
+     * http://stackoverflow.com/a/17880012/1036748
+     * @param px given px that will be converted to dp
+     * @return the value of px in dp
+     */
     public static int pxToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
     }
 
+    /**
+     * http://stackoverflow.com/a/3410200/1036748
+     * @param activity the main activity
+     * @return the height of the status bar in pixels
+     */
     public int getStatusBarHeight(Activity activity) {
         int result = 0;
         int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");

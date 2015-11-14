@@ -7,6 +7,9 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -14,10 +17,12 @@ import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 import com.unseenspace.android.EspressoActivityTestRule;
+import com.unseenspace.android.Themes;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,11 +30,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -59,34 +74,48 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testPortraitToLandscape() {
+    public void testPortraitToLandscape() throws IOException {
         MainActivity activity = activityRule.getActivity();
 
         activity = rotate(activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        screenshot(activity, "before");
+        assertThat("This test will fail if the device's screen is not on", activity, notNullValue());
+        Bitmap before = BitmapFactory.decodeFile(screenshot(activity, "before").getCanonicalPath());
+        assertThat(before.getWidth(), lessThan(before.getHeight()));
 
         activity = rotate(activity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        screenshot(activity, "after");
+        Bitmap after = BitmapFactory.decodeFile(screenshot(activity, "after").getCanonicalPath());
+        assertThat(after.getWidth(), greaterThan(after.getHeight()));
     }
 
     @Test
-    public void testLandscapeToPortrait()
-    {
+    public void testLandscapeToPortrait() throws IOException {
         MainActivity activity = activityRule.getActivity();
 
         activity = rotate(activity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        screenshot(activity, "before");
+        assertThat("This test will fail if the device's screen is not on", activity, notNullValue());
+        Bitmap before = BitmapFactory.decodeFile(screenshot(activity, "before").getCanonicalPath());
+        assertThat(before.getWidth(), greaterThan(before.getHeight()));
 
         activity = rotate(activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        screenshot(activity, "after");
+        Bitmap after = BitmapFactory.decodeFile(screenshot(activity, "after").getCanonicalPath());
+        assertThat(after.getWidth(), lessThan(after.getHeight()));
+    }
+
+    @Test
+    public void testToolbarColor() throws IOException {
+        MainActivity activity = activityRule.getActivity();
+
+        Bitmap screenshot = BitmapFactory.decodeFile(screenshot(activity, "screenshot").getCanonicalPath());
+
+        assertThat(screenshot.getPixel(0, 0), is(Themes.getColor(activity, R.attr.colorPrimaryDark)));
+        assertThat(screenshot.getPixel(0, getStatusBarHeight(activity)+1), is(Themes.getColor(activity, R.attr.colorPrimary)));
     }
 
 
 
     /* Utility Functions */
     @SuppressWarnings("unchecked")
-    private static <T extends Activity> T rotate(T activity, int requestedOrientation)
-    {
+    private static <T extends Activity> T rotate(T activity, int requestedOrientation)  {
         activity.setRequestedOrientation(requestedOrientation);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
@@ -111,9 +140,9 @@ public class ApplicationTest {
                         return element;
                 }
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -134,5 +163,22 @@ public class ApplicationTest {
         });
 
         return currentActivity[0];
+    }
+
+    public static int dpToPx(int dp) {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public static int pxToDp(int px) {
+        return (int) (px / Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public int getStatusBarHeight(Activity activity) {
+        int result = 0;
+        int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = activity.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

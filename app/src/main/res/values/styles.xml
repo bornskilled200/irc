@@ -1,11 +1,29 @@
 <resources>
+    <!--
+    The themes are based off of the AppCompat's base themes, Light and Dark
+    Then colors are applied off of the 2 themes, such as Purple or Red
 
-    <!--In use when Cards are relevant
-    <attr format="reference" name="cardStyle"/>
-    <attr format="reference" name="cardImage"/>-->
-    <attr format="reference" name="itemImage"/>
-    <attr format="reference" name="homeImage"/>
+    I create custom themes for certain stylable Widgets such as Card or Toolbar's Text
+    This is to keep custom attributes out of the layouts
+    -->
 
+
+    <!-- Custom Primary Colored Themes -->
+
+    <style name="AppTheme.Dark.Purple"> <!-- Has implicit base of AppTheme.Dark -->
+        <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
+        <item name="colorAccent">@color/purpleAccent</item>
+    </style>
+
+    <style name="AppTheme.Light.Purple"> <!-- Has implicit base of AppTheme.Light -->
+        <item name="colorPrimary">@color/purplePrimary</item>
+        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
+        <item name="colorAccent">@color/purpleAccent</item>
+    </style>
+
+
+    <!-- Base Themes -->
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 
@@ -14,19 +32,10 @@
         <item name="cardImage">@drawable/ic_adjust_white_24dp</item>-->
         <item name="itemImage">@drawable/ic_adjust_white_48dp</item>
         <item name="homeImage">@drawable/ic_home_black_24dp</item>
+        <item name="navigationHeaderStyle">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="toolbarStyle">@style/Toolbar.Dark</item>
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
     </style>
-
-    <style name="AppTheme.Dark.Purple">
-        <item name="colorPrimary">@color/purplePrimary</item>
-        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
-        <item name="colorAccent">@color/purpleAccent</item>
-        <!-- In use when Cards are relevant
-        <item name="cardStyle">@style/CardView.Dark</item>-->
-        <!--<item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>-->
-    </style>
-
-
 
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -36,17 +45,23 @@
         <item name="cardImage">@drawable/ic_adjust_black_24dp</item>-->
         <item name="itemImage">@drawable/ic_adjust_black_48dp</item>
         <item name="homeImage">@drawable/ic_home_white_24dp</item>
+        <item name="navigationHeaderStyle">@style/ThemeOverlay.AppCompat</item>
+        <item name="toolbarStyle">@style/Toolbar.Dark</item>
         <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
     </style>
 
-    <style name="AppTheme.Light.Purple">
-        <item name="colorPrimary">@color/purplePrimary</item>
-        <item name="colorPrimaryDark">@color/purplePrimaryDark</item>
-        <item name="colorAccent">@color/purpleAccent</item>
-        <!--In use when Cards are relevant
-        <item name="cardStyle">@style/CardView.Light</item>-->
-        <!--<item name="theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
-    </style>
+
+    <!-- Custom Attributes -->
+
+    <!--In use when Cards are relevant
+    <attr format="reference" name="cardStyle"/>
+    <attr format="reference" name="cardImage"/>-->
+    <attr format="reference" name="itemImage"/>
+    <attr format="reference" name="homeImage"/>
+    <attr format="reference" name="navigationHeaderStyle"/>
+
+
+    <!-- Custom stylable Widget's style-->
 
     <style name="TextAppearance.Item.Title" parent="TextAppearance.AppCompat.Large">
         <item name="android:textSize">16sp</item>
@@ -66,5 +81,22 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Toolbar.Title</item>
+    </style>
+
+    <style name="Toolbar.Dark">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
+    </style>
+
+    <style name="Toolbar.Light">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+
+    <style name="TextAppearance.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title" >
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

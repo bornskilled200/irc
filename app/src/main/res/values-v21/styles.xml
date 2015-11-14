@@ -1,0 +1,25 @@
+<resources>
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="itemImage">@drawable/ic_adjust_white_48dp</item>
+        <item name="homeImage">@drawable/ic_home_black_24dp</item>
+        <item name="navigationHeaderStyle">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="toolbarStyle">@style/Toolbar.Dark</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="itemImage">@drawable/ic_adjust_black_48dp</item>
+        <item name="homeImage">@drawable/ic_home_white_24dp</item>
+        <item name="navigationHeaderStyle">@style/ThemeOverlay.AppCompat</item>
+        <item name="toolbarStyle">@style/Toolbar.Dark</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+</resources>

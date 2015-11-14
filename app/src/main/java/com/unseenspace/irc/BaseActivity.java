@@ -41,10 +41,6 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @param activity
      */
     public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
-        View view = navigationView.inflateHeaderView(R.layout.nav_header);
-        ImageView navImage = (ImageView) view.findViewById(R.id.nav_image);
-        navImage.setColorFilter(Themes.getColor(this, R.attr.colorPrimary));
-
         navigationView.setCheckedItem(R.id.nav_home);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                     @Override

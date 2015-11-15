@@ -55,6 +55,10 @@ public class ApplicationTest {
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new EspressoActivityTestRule<>(MainActivity.class);
 
+    /**
+     * fix for marsmallow's permission model that only allows external write when asked for
+     * compared to
+     */
     @Before
     public void before() {
         if (ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
@@ -169,6 +173,7 @@ public class ApplicationTest {
     }
 
     /**
+     * http://qathread.blogspot.com/2014/09/discovering-espresso-for-android-how-to.html
      * returns the current activity
      * will not work if the screen device is off
      * mainly used as a work around when you change orientation until it is fixed in ActivityTestRule

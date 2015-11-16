@@ -12,7 +12,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,20 +31,22 @@ import com.unseenspace.android.Themes;
  */
 public class IrcListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private View.OnClickListener clickListener;
+    private IrcListener ircListener;
     private IrcOpenHelper openHelper;
+    private GestureDetector gestureDetector;
+    private RecyclerView recyclerView;
 
     @Override
     public void onDetach() {
         super.onDetach();
-        clickListener = null;
+        ircListener = null;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof View.OnClickListener)
-            clickListener = (View.OnClickListener) context;
+        if (context instanceof IrcListener)
+            ircListener = (IrcListener) context;
     }
 
     private long addIrc(IrcFragment.Template template, String name, String ip, String channel, String username, String password)
@@ -69,22 +73,29 @@ public class IrcListFragment extends Fragment {
         openHelper = new IrcOpenHelper(getActivity());
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
 
-        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+        gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                IrcItemHolder ircItemHolder = (IrcItemHolder) recyclerView.getChildViewHolder(recyclerView.findChildViewUnder(e.getX(), e.getY()));
+                return ircListener.onClick(ircItemHolder.irc);
+            }
+        });
+
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
+        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                gestureDetector.onTouchEvent(e);
+                return false;
+            }
+        });
         recyclerView.setAdapter(new RecyclerView.Adapter<IrcItemHolder>() {
-            private final View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.onClick(v);
-                }
-            };
             private final Drawable drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
 
             @Override
             public IrcItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                IrcItemHolder shootCardHolder = new IrcItemHolder(parent);
-                shootCardHolder.itemView.setOnClickListener(listener);
-                return shootCardHolder;
+                return new IrcItemHolder(parent);
             }
 
             @Override
@@ -131,15 +142,21 @@ public class IrcListFragment extends Fragment {
     private static class IrcItemHolder extends RecyclerView.ViewHolder {
 
         private final ImageView target;
+        private final IrcEntry irc;
         private final TextView name;
         private final TextView score;
 
         public IrcItemHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shoot, parent, false));
 
+            irc = null;
             target = (ImageView) itemView.findViewById(R.id.shoot_target);
             name = (TextView) itemView.findViewById(R.id.shoot_name);
             score = (TextView) itemView.findViewById(R.id.shoot_score);
         }
+    }
+
+    public interface IrcListener {
+        boolean onClick(IrcEntry ircEntry);
     }
 }

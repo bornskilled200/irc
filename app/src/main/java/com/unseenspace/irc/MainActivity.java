@@ -10,9 +10,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements IrcListFragment.IrcListener {
 
     private final static String TAG = "MainActivity";
     public static final String TAG_IRC_LIST = "TAG_IRC_LIST";
@@ -42,6 +41,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (navigationView != null)
             setupDrawerContent(navigationView, drawerLayout, this);
 
+        /* FRAGMENT STUFF */
         FragmentManager fragmentManager = getSupportFragmentManager();
         Log.v(TAG, fragmentManager.getBackStackEntryCount() + " " + fragmentManager.getFragments());
 
@@ -96,9 +96,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View view) {
+    public boolean onClick(IrcEntry entry) {
         Log.v(TAG, "Creating IrcFragment");
-        addIrcFragment(IrcFragment.create("unseenspace", preferences.getString("password", ""), IrcFragment.Template.TWITCH));
+        addIrcFragment(IrcFragment.create("unseenspace", "", IrcFragment.Template.TWITCH));
+        return true;
     }
 
     private void addIrcFragment(IrcFragment fragment) {

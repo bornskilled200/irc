@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class IrcOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "UnseenIrc.db";
     private static final String IRC_TABLE_CREATE =
             "CREATE TABLE " + IrcEntry.TABLE_NAME + " (" +
                     IrcEntry.COLUMN_ID + " INTEGER PRIMARY KEY," +
@@ -22,7 +23,7 @@ public class IrcOpenHelper extends SQLiteOpenHelper {
                     IrcEntry.COLUMN_PASSWORD + " TEXT)";
 
     public IrcOpenHelper(Context context) {
-        super(context, IrcEntry.TABLE_NAME, null, DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override

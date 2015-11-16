@@ -13,7 +13,6 @@
     <string name="server_hint">Server</string>
     <string name="port_hint">default: 6667</string>
     <string name="message_hint">Write a message</string>
-    <string name="pref_password">Password</string>
 
     <string name="item_shoot">Shoot %1$d</string>
     <string name="item_score">Score: %1$d</string>

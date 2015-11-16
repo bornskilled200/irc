@@ -29,8 +29,7 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
 
     public static int getTheme(SharedPreferences preferences) {
         String string = preferences.getString("pref_theme", "Default");
-        switch (string)
-        {
+        switch (string) {
             case "Default":
             case "Light+Purple":
                 return R.style.AppTheme_Light_Purple;
@@ -43,8 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference.getKey().equals("pref_theme"))
-        {
+        if (preference.getKey().equals("pref_theme")) {
             Activity activity = getActivity();
             activity.finish();
             startActivity(activity.getIntent());

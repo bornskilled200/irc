@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
+ * sql database opener for irc entries
+ *
  * Created by madsk_000 on 11/4/2015.
  */
 public class IrcOpenHelper extends SQLiteOpenHelper {

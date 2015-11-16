@@ -1,9 +1,7 @@
 package com.unseenspace.irc;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
@@ -86,8 +81,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      * handling side drawer items
      * android.R.id.home (Hamburger/Settings button)
      *
-     * @param item
-     * @return
+     * @param item the item that got selected
+     * @return Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -115,7 +111,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (panes == 1)
             fragmentTransaction.setCustomAnimations(R.anim.slide_in_right_full, R.anim.slide_out_left_full, R.anim.slide_in_left_full, R.anim.slide_out_right_full);
         else
-            fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_bottom, 0);
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_child_bottom, 0);
 
         fragmentTransaction.replace(R.id.mainFragment, fragment, TAG_IRC)
                 .addToBackStack("IRC")

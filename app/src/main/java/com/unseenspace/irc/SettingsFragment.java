@@ -7,8 +7,6 @@ import android.support.v7.preference.Preference;
 import android.util.Log;
 
 import android.support.v7.preference.PreferenceFragmentCompatFix;
-//import android.support.v7.preference.PreferenceFragmentCompat;
-//import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 /**
  * fragment for preferences/settings

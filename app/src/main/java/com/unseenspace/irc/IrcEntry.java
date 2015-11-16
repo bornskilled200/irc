@@ -3,6 +3,7 @@ package com.unseenspace.irc;
 import android.provider.BaseColumns;
 
 /**
+ * table name and column names of an IRC row in the sql database
  * Created by madsk_000 on 11/5/2015.
  */
 public class IrcEntry implements BaseColumns{

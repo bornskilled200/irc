@@ -3,7 +3,7 @@
     The themes are based off of the AppCompat's base themes, Light and Dark
     Then colors are applied off of the 2 themes, such as Purple or Red
 
-    I create custom themes for certain stylable Widgets such as Card or Toolbar's Text
+    I create custom themes for certain styleable Widgets such as Card or Toolbar's Text
     This is to keep custom attributes out of the layouts
     -->
 
@@ -61,7 +61,7 @@
     <attr format="reference" name="navigationHeaderStyle"/>
 
 
-    <!-- Custom stylable Widget's style-->
+    <!-- Custom styleable Widget's style-->
 
     <style name="TextAppearance.Item.Title" parent="TextAppearance.AppCompat.Large">
         <item name="android:textSize">16sp</item>

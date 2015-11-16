@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.Fragment;
 
 /**
+ * utility class for getting attributes from the current theme
+ *
  * Created by madsk_000 on 11/9/2015.
  */
+@SuppressWarnings("SameParameterValue")
 public class Themes {
     private Themes(){}
 

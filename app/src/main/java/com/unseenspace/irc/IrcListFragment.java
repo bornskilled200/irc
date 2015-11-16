@@ -2,7 +2,7 @@ package com.unseenspace.irc;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.TypedArray;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -22,7 +22,10 @@ import android.widget.Toast;
 import com.unseenspace.android.Themes;
 
 /**
- * Created by chris.black on 6/11/15.
+ * list of all irc entries in the sql database
+ *
+ * also contains a floating action button to add an irc entry
+ * Created by madsk_000 on 10/23/2015.
  */
 public class IrcListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -69,13 +72,13 @@ public class IrcListFragment extends Fragment {
         final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         recyclerView.setAdapter(new RecyclerView.Adapter<IrcItemHolder>() {
-            private View.OnClickListener listener = new View.OnClickListener() {
+            private final View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     clickListener.onClick(v);
                 }
             };
-            private Drawable drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
+            private final Drawable drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
 
             @Override
             public IrcItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -86,9 +89,10 @@ public class IrcListFragment extends Fragment {
 
             @Override
             public void onBindViewHolder(IrcItemHolder holder, int position) {
+                Resources resources = getResources();
                 holder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
-                holder.name.setText("Shoot " + position);
-                holder.score.setText("Score: " + (int) (Math.random() * 360));
+                holder.name.setText(resources.getString(R.string.item_shoot, position));
+                holder.score.setText(resources.getString(R.string.item_score, (int) (Math.random() * 360)));
             }
 
             @Override

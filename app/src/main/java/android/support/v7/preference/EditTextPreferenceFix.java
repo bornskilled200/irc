@@ -6,6 +6,7 @@ import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+@SuppressWarnings("ALL")
 public class EditTextPreferenceFix extends EditTextPreference {
     private EditText editText;
 

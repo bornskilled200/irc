@@ -16,6 +16,12 @@
             android:layout_height="?attr/actionBarSize" />
 
         <FrameLayout
+            android:id="@+id/sideFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <FrameLayout
             android:id="@+id/mainFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -11,13 +11,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-
-import com.unseenspace.android.Themes;
 
 /**
- * common base activity so that themes can be set automagically to all activities i create
+ * common base activity so that themes can be set automatically to all activities i create
  * Created by madsk_000 on 6/19/2015.
  */
 public abstract class BaseActivity extends AppCompatActivity {
@@ -36,9 +32,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         return null;
     }
     /**
-     * When an item from the settings drawer gets picked
-     * @param navigationView
-     * @param activity
+     * When an item from the left drawer gets picked
+     *
+     * @param navigationView the navigation view
+     * @param activity the main activity
      */
     public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
         navigationView.setCheckedItem(R.id.nav_home);

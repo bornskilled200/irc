@@ -2,10 +2,8 @@ package com.unseenspace.irc;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,6 +17,7 @@ import android.widget.Toast;
 
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
+import org.pircbotx.User;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.Listener;
@@ -33,8 +32,13 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
+ * a fragment showing the given irc
+ *
+ * TextView for the chat
+ * EditText for messages to send
  * Created by madsk_000 on 10/23/2015.
  */
+@SuppressWarnings("SameParameterValue")
 public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener {
 
     private final static String TAG = "IrcFragment";
@@ -49,6 +53,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
     private Configuration configuration;
     private String channel;
 
+    @SuppressWarnings("SameParameterValue")
     public enum Template {
         TWITCH {
             @Override
@@ -148,7 +153,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
 
                 @Override
                 public void onJoin(JoinEvent event) throws Exception {
-                    alert(event.getUser().getNick() + " joined", true);
+                    alert(event.getUser(), "joined", true);
                 }
 
                 @Override
@@ -166,6 +171,9 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
                     alert(event.getMessage(), true);
                 }
 
+                private void alert(User user, String text, final boolean add) {
+                    alert((user == null?"Unknown ": (user.getNick() + " ")) + text, add);
+                }
 
                 private void alert(final String text, final boolean add) {
                     getActivity().runOnUiThread(new Runnable() {

@@ -100,7 +100,7 @@ public class Tests {
      * returns the first element of the stack trace starting from top
      * that points to a method that has @Test annotation
      *
-     * @param e throwable/exception that will be examied
+     * @param e throwable/exception that will be examined
      * @return element of the stack trace that points to a method that has @Test annotation
      */
     public static StackTraceElement findTestClassTraceElement(Throwable e) {

@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,9 +22,7 @@ import android.widget.Toast;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
-import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.exception.IrcException;
-import org.pircbotx.hooks.Listener;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.DisconnectEvent;
@@ -33,7 +35,7 @@ import java.util.Locale;
 
 /**
  * a fragment showing the given irc
- *
+ * <p/>
  * TextView for the chat
  * EditText for messages to send
  * Created by madsk_000 on 10/23/2015.
@@ -52,54 +54,13 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
     private TextToSpeech tts;
     private Configuration configuration;
     private String channel;
+    private Animation enterPortraitAnimation;
+    private Animation exitPortraitAnimation;
+    private Animation enterLandscapeAnimation;
+    private Animation exitLandscapeAnimation;
 
-    @SuppressWarnings("SameParameterValue")
-    public enum Template {
-        TWITCH {
-            @Override
-            public Configuration createConfiguration(String ip, String channel, String username, String password, Listener listener) {
-                return new Configuration.Builder()
-                        .setAutoNickChange(false) //Twitch doesn't support multiple users
-                        .setOnJoinWhoEnabled(false) //Twitch doesn't support WHO command
-                        .setCapEnabled(true)
-                        .addCapHandler(new EnableCapHandler("twitch.tv/membership")) //Twitch by default doesn't send JOIN, PART, and NAMES unless you request it, see https://github.com/justintv/Twitch-API/blob/master/IRC.md#membership
-
-                        .addServer("irc.twitch.tv")
-                        .setName(username) //Your twitch.tv username
-                        .setServerPassword(password) //Your oauth password from http://twitchapps.com/tmi
-                        .addAutoJoinChannel("#" + username) //Some twitch channel
-
-                        .addListener(listener).buildConfiguration();
-            }
-
-            @Override
-            public String getChannel(String channel, String username) {
-                return (channel == null || channel.length() == 0)?"#" + username:channel;
-            }
-        }, IRC {
-            @Override
-            public Configuration createConfiguration(String ip, String channel, String username, String password, Listener listener) {
-                return new Configuration.Builder()
-                        .addServer(ip)
-                        .setName(username) //Your twitch.tv username
-                        .setServerPassword(password) //Your oauth password from http://twitchapps.com/tmi
-                        .addAutoJoinChannel(channel) //Some twitch channel
-
-                        .addListener(listener).buildConfiguration();
-            }
-
-            @Override
-            public String getChannel(String channel, String username) {
-                return channel;
-            }
-        };
-
-        public abstract Configuration createConfiguration(String ip, String channel, String username, String password, Listener listener);
-        public abstract String getChannel(String channel, String username);
-    }
-
-    public static IrcFragment create(String username, String password, Template template) {
-        Log.v(TAG, "create(" + username + ", String password)");
+    public static IrcFragment create(String username, String password, IrcEntry.Template template) {
+        Log.v(TAG, "create(" + username + ", String password, " + template + ")");
 
         IrcFragment ircFragment = new IrcFragment();
 
@@ -116,22 +77,20 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
         return ircFragment;
     }
 
-    private String getPassword()
-    {
+    private String getPassword() {
         Bundle arguments = getArguments();
         if (arguments == null)
             return "";
         String string = arguments.getString(PASSWORD);
-        return string == null? "" : string;
+        return string == null ? "" : string;
     }
 
-    private Template getTemplate()
-    {
+    private IrcEntry.Template getTemplate() {
         Bundle arguments = getArguments();
         if (arguments == null)
-            return Template.IRC;
+            return IrcEntry.Template.IRC;
         String string = arguments.getString(TEMPLATE);
-        return string == null? Template.IRC : Template.valueOf(string);
+        return string == null ? IrcEntry.Template.IRC : IrcEntry.Template.valueOf(string);
     }
 
     @Nullable
@@ -172,7 +131,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
                 }
 
                 private void alert(User user, String text, final boolean add) {
-                    alert((user == null?"Unknown ": (user.getNick() + " ")) + text, add);
+                    alert((user == null ? "Unknown " : (user.getNick() + " ")) + text, add);
                 }
 
                 private void alert(final String text, final boolean add) {
@@ -198,7 +157,34 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
             });
         }
 
+        Interpolator interpolator;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            interpolator = AnimationUtils.loadInterpolator(getContext(), android.R.interpolator.fast_out_slow_in);
+        else
+            interpolator = new FastOutSlowInInterpolator();
+
+        enterPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right_full);
+        enterPortraitAnimation.setInterpolator(interpolator);
+
+        exitPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_right_full);
+        exitPortraitAnimation.setInterpolator(interpolator);
+
+        enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
+        enterLandscapeAnimation.setInterpolator(interpolator);
+
+        exitLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_child_bottom);
+        exitLandscapeAnimation.setInterpolator(interpolator);
         return view;
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        int panes = getResources().getInteger(R.integer.panes);
+        if (panes == 1)
+            return enter ? enterPortraitAnimation : exitPortraitAnimation;
+        else if (panes == 2)
+            return enter ? enterLandscapeAnimation : exitLandscapeAnimation;
+        return super.onCreateAnimation(transit, enter, nextAnim);
     }
 
     private void sendMessage(CharSequence message) {
@@ -210,21 +196,21 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
     /**
      * Convenience method for speaking that takes account for API differences between
      * Pre Lollipop vs Lollipop
-     *
+     * <p/>
      * will also take consideration of whether it should speak or just have a bell or no alert
+     *
      * @param text the text that will be spoken
-     * @param add whether to add or delete previous messages
+     * @param add  whether to add or delete previous messages
      */
     @SuppressWarnings("deprecation")
-    private void alert(final String text, final boolean add)
-    {
+    private void alert(final String text, final boolean add) {
         textBox.append(text);
         textBox.append("\n");
         if (tts == null)
             return;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            tts.speak(text, add?TextToSpeech.QUEUE_ADD:TextToSpeech.QUEUE_FLUSH, null, null);
+            tts.speak(text, add ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, null, null);
         else
             tts.speak(text, add ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH, null);
     }
@@ -266,4 +252,5 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
             }
         }
     }
+
 }

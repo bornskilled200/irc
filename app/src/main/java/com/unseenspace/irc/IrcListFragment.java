@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +19,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,11 +35,15 @@ import com.unseenspace.android.Themes;
  * Created by madsk_000 on 10/23/2015.
  */
 public class IrcListFragment extends Fragment {
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private IrcListener ircListener;
     private IrcOpenHelper openHelper;
     private GestureDetector gestureDetector;
     private RecyclerView recyclerView;
+    private Animation enterLandscapeAnimation;
+    private Animation exitPortraitAnimation;
+    private Animation enterPortraitAnimation;
 
     @Override
     public void onDetach() {
@@ -49,7 +58,7 @@ public class IrcListFragment extends Fragment {
             ircListener = (IrcListener) context;
     }
 
-    private long addIrc(IrcFragment.Template template, String name, String ip, String channel, String username, String password)
+    private long addIrc(IrcEntry.Template template, String name, String ip, String channel, String username, String password)
     {
         SQLiteDatabase db = openHelper.getWritableDatabase();
 
@@ -132,7 +141,32 @@ public class IrcListFragment extends Fragment {
             }
         });
 
+        Interpolator interpolator;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            interpolator = AnimationUtils.loadInterpolator(getContext(), android.R.interpolator.fast_out_slow_in);
+        else
+            interpolator = new FastOutSlowInInterpolator();
+
+
+        enterPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left_full);
+        enterPortraitAnimation.setInterpolator(interpolator);
+
+        exitPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_left_full);
+        exitPortraitAnimation.setInterpolator(interpolator);
+
+        enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
+        enterLandscapeAnimation.setInterpolator(interpolator);
         return view;
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        int panes = getResources().getInteger(R.integer.panes);
+        if (panes == 1)
+            return enter?enterPortraitAnimation:exitPortraitAnimation;
+        else if (panes == 2)
+            return enter?enterLandscapeAnimation: null;
+        return super.onCreateAnimation(transit, enter, nextAnim);
     }
 
     private void createIrc() {

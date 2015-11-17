@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true" >
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -19,14 +19,14 @@
             android:id="@+id/sideFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:layout_below="@id/toolbar" />
 
         <FrameLayout
             android:id="@+id/mainFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar"  />
+    </RelativeLayout>
 
     <!-- The navigation drawer -->
     <android.support.design.widget.NavigationView

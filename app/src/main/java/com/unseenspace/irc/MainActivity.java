@@ -2,6 +2,7 @@ package com.unseenspace.irc;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -11,12 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
-public class MainActivity extends BaseActivity implements IrcListFragment.IrcListener {
+public class MainActivity extends BaseActivity implements IrcListFragment.IrcListener, FragmentManager.OnBackStackChangedListener {
 
     private final static String TAG = "MainActivity";
     public static final String TAG_IRC_LIST = "TAG_IRC_LIST";
     public static final String TAG_IRC = "TAG_IRC";
+
     private DrawerLayout drawerLayout;
+    private int currentPaneSetup = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,40 +44,43 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
         if (navigationView != null)
             setupDrawerContent(navigationView, drawerLayout, this);
 
+
         /* FRAGMENT STUFF */
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Log.v(TAG, fragmentManager.getBackStackEntryCount() + " " + fragmentManager.getFragments());
-
-        IrcFragment ircFragment = null;
-        IrcListFragment listFragment;
-        if (savedInstanceState == null) {
-            FragmentManager.enableDebugLogging(true);
-            Log.v(TAG, "Creating IrcListFragment");
-            listFragment = new IrcListFragment();
-        }
-        else {
-            listFragment = (IrcListFragment) fragmentManager.findFragmentByTag(TAG_IRC_LIST);
-            ircFragment = (IrcFragment) fragmentManager.findFragmentByTag(TAG_IRC);
-
-            Log.v(TAG, "IrcListFragment " + (listFragment == null ? "not" : "") + "found");
-            Log.v(TAG, "IrcFragment " + (ircFragment == null ? "not" : "") + "found");
-            Log.v(TAG, "Removing IrcListFragment || IrcFragment");
-            if (ircFragment != null)
-                fragmentManager.popBackStackImmediate();
-            fragmentManager.beginTransaction().remove(listFragment).commit();
-            Log.v(TAG, "Pending actions executed: " + fragmentManager.executePendingTransactions());
-        }
+        fragmentManager.addOnBackStackChangedListener(this);
 
         int panes = getResources().getInteger(R.integer.panes);
-        Log.v(TAG, "Panes: " + panes);
+        if (currentPaneSetup != panes) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            IrcListFragment listFragment = new IrcListFragment();
+            if (savedInstanceState == null) {
+                Log.v(TAG, "Creating IrcListFragment");
+                fragmentTransaction.replace(R.id.sideFragment, listFragment, TAG_IRC_LIST);
+            } else
+                listFragment = (IrcListFragment) fragmentManager.findFragmentByTag(TAG_IRC_LIST);
 
-        Log.v(TAG, "Adding IrcListFragment");
-        fragmentManager.beginTransaction()
-                .replace(panes == 1 ? R.id.mainFragment : R.id.sideFragment, listFragment, TAG_IRC_LIST)
-                .commit();
+            Fragment ircFragment = fragmentManager.findFragmentByTag(TAG_IRC);
+            if (panes == 1)
+                if (ircFragment != null)
+                    show(fragmentTransaction.hide(listFragment), ircFragment).commit();
+                else
+                    fragmentTransaction.show(listFragment).commit();
+            else if (panes == 2)
+                show(fragmentTransaction.show(listFragment), ircFragment).commit();
 
-        if (ircFragment != null)
-            addIrcFragment(ircFragment);
+        }
+    }
+
+    /**
+     * shows the fragment if not null
+     * @param transaction the transaction that is happening now
+     * @param fragment the fragment to be shown
+     * @return the @param transaction that was given, for "chaining"
+     */
+    private FragmentTransaction show(FragmentTransaction transaction, Fragment fragment) {
+        if (fragment != null)
+            transaction.show(fragment);
+        return transaction;
     }
 
     /**
@@ -98,7 +104,7 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
     @Override
     public boolean onClick(IrcEntry entry) {
         Log.v(TAG, "Creating IrcFragment");
-        addIrcFragment(IrcFragment.create("unseenspace", "", IrcFragment.Template.TWITCH));
+        addIrcFragment(IrcFragment.create("unseenspace", "", IrcEntry.Template.TWITCH));
         return true;
     }
 
@@ -106,16 +112,22 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
         addIrcFragment(fragment, getResources().getInteger(R.integer.panes));
     }
 
-    private void addIrcFragment(IrcFragment fragment, int panes) {
+    private void addIrcFragment(IrcFragment ircFragment, int panes) {
         Log.v(TAG, "Adding IrcFragment");
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if (panes == 1)
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right_full, R.anim.slide_out_left_full, R.anim.slide_in_left_full, R.anim.slide_out_right_full);
-        else
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_child_bottom, 0);
-
-        fragmentTransaction.replace(R.id.mainFragment, fragment, TAG_IRC)
-                .addToBackStack("IRC")
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.mainFragment, ircFragment, TAG_IRC)
+                .addToBackStack(null)
                 .commit();
+
+        if (panes == 1)
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(TAG_IRC_LIST)).show(ircFragment).commit();
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (getResources().getInteger(R.integer.panes) == 1 && fragmentManager.getBackStackEntryCount() == 0)
+            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(TAG_IRC_LIST)).commit();
     }
 }

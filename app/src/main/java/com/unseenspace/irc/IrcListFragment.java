@@ -45,31 +45,12 @@ import java.util.Collections;
 public class IrcListFragment extends Fragment {
     private static final String TAG = "IrcListFragment";
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
     private IrcListener ircListener;
     private IrcOpenHelper openHelper;
-    private GestureDetector gestureDetector;
-    private RecyclerView recyclerView;
+
     private Animation enterLandscapeAnimation;
     private Animation exitPortraitAnimation;
     private Animation enterPortraitAnimation;
-    private SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
-            }, 1000);
-        }
-    };
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            createIrc();
-        }
-    };
 
     @Override
     public void onDetach() {
@@ -105,7 +86,7 @@ public class IrcListFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_irc_list, container, false);
 
         if (savedInstanceState == null) {
-            openHelper = BaseActivity.getIrcOpenHelper(getContext());
+            openHelper = new IrcOpenHelper(getContext());
 
             Interpolator interpolator;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -124,48 +105,7 @@ public class IrcListFragment extends Fragment {
             enterLandscapeAnimation.setInterpolator(interpolator);
         }
 
-        ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
-        progress.setVisibility(View.VISIBLE);
-
-        AsyncTaskCompat.executeParallel(new AsyncTask<Void, Void, Cursor>() {
-            @Override
-            protected Cursor doInBackground(Void... params) {
-                SQLiteDatabase readable = openHelper.getReadableDatabase();
-                return readable.query(IrcEntry.TABLE_NAME, null, null, null, null, null, null);
-            }
-
-            @Override
-            protected void onPostExecute(Cursor cursor) {
-                ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
-                progress.setVisibility(View.GONE);
-
-                recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
-                    @Override
-                    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                        gestureDetector.onTouchEvent(e);
-                        return false;
-                    }
-                });
-
-                recyclerView.setAdapter(new IrcRecyclerAdapter(cursor));
-
-                gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onSingleTapUp(MotionEvent e) {
-                        IrcItemHolder ircItemHolder = (IrcItemHolder) recyclerView.getChildViewHolder(recyclerView.findChildViewUnder(e.getX(), e.getY()));
-                        return ircListener.onClick(ircItemHolder.irc);
-                    }
-                });
-            }
-        });
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
-        mSwipeRefreshLayout.setOnRefreshListener(onRefreshListener);
-
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(onClickListener);
+        AsyncTaskCompat.executeParallel(new PopulateList(view), openHelper);
 
         return view;
     }
@@ -203,10 +143,10 @@ public class IrcListFragment extends Fragment {
 
             @Override
             protected void onPostExecute(Cursor cursor) {
-                IrcRecyclerAdapter adapter = (IrcRecyclerAdapter) recyclerView.getAdapter();
-                adapter.changeCursor(cursor);
+                //IrcRecyclerAdapter adapter = (IrcRecyclerAdapter) recyclerView.getAdapter();
+                //adapter.changeCursor(cursor);
 
-                Toast.makeText(getActivity(), "creating irc really", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "creating irc not really", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -261,6 +201,74 @@ public class IrcListFragment extends Fragment {
         @Override
         public IrcItemHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
             return new IrcItemHolder(parent);
+        }
+    }
+
+    private class PopulateList extends AsyncTask<IrcOpenHelper, Void, Cursor> {
+        private final View view;
+
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1000);
+            }
+        };
+        private View.OnClickListener onClickListener = new View.OnClickListener() {
+            public void onClick(View v) {
+                createIrc();
+            }
+        };
+
+        public PopulateList(View view) {
+            this.view = view;
+        }
+
+        @Override
+        protected Cursor doInBackground(IrcOpenHelper... params) {
+            SQLiteDatabase readable = params[0].getReadableDatabase();
+            return readable.query(IrcEntry.TABLE_NAME, null, null, null, null, null, null);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
+            progress.setVisibility(View.GONE);
+
+            FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+            floatingActionButton.setVisibility(View.VISIBLE);
+            floatingActionButton.setOnClickListener(onClickListener);
+
+            swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
+
+            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setAdapter(new IrcRecyclerAdapter(cursor));
+            recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+                GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        IrcItemHolder ircItemHolder = (IrcItemHolder) recyclerView.getChildViewHolder(recyclerView.findChildViewUnder(e.getX(), e.getY()));
+                        return ircListener.onClick(ircItemHolder.irc);
+                    }
+                });
+
+                @Override
+                public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                    gestureDetector.onTouchEvent(e);
+                    return false;
+                }
+            });
+
+
         }
     }
 }

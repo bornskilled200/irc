@@ -3,6 +3,7 @@ package com.unseenspace.irc;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -17,9 +18,16 @@ import android.view.MenuItem;
  * Created by madsk_000 on 6/19/2015.
  */
 public abstract class BaseActivity extends AppCompatActivity {
-
+    private static IrcOpenHelper ircOpenHelper;
     protected SharedPreferences preferences;
+
     private boolean refreshTheme;
+
+    public static IrcOpenHelper getIrcOpenHelper(Context context) {
+        if (ircOpenHelper == null)
+            ircOpenHelper = new IrcOpenHelper(context);
+        return ircOpenHelper;
+    }
 
     private Drawable getIconForAccount(Account account, AccountManager manager) {
         AuthenticatorDescription[] descriptions =  manager.getAuthenticatorTypes();

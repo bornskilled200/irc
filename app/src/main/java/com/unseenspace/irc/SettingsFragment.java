@@ -24,7 +24,7 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        findPreference("pref_theme").setOnPreferenceChangeListener(this);
+        findPreference(getResources().getString(R.string.pref_theme)).setOnPreferenceChangeListener(this);
     }
 
     public static int getTheme(SharedPreferences preferences) {
@@ -42,7 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference.getKey().equals("pref_theme")) {
+        if (preference.getKey().equals(getResources().getString(R.string.pref_theme))) {
             Activity activity = getActivity();
             activity.finish();
             startActivity(activity.getIntent());

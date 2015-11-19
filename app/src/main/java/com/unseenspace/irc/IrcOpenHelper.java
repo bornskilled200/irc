@@ -10,11 +10,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by madsk_000 on 11/4/2015.
  */
 public class IrcOpenHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "UnseenIrc.db";
     private static final String IRC_TABLE_CREATE =
             "CREATE TABLE " + IrcEntry.TABLE_NAME + " (" +
-                    IrcEntry.COLUMN_ID + " INTEGER PRIMARY KEY," +
+                    IrcEntry._ID + " INTEGER PRIMARY KEY," +
+                    IrcEntry._COUNT + " INTEGER," +
                     IrcEntry.COLUMN_TEMPLATE + " TEXT," +
                     IrcEntry.COLUMN_NAME + " TEXT," +
                     IrcEntry.COLUMN_IP + " TEXT," +
@@ -34,5 +35,7 @@ public class IrcOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + IrcEntry.TABLE_NAME);
+
+        onCreate(db);
     }
 }

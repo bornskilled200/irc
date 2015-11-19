@@ -19,6 +19,9 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
     public static final String TAG_IRC = "TAG_IRC";
 
     private DrawerLayout drawerLayout;
+    /**
+     * What layout this is, 0 for none or taken literally, no panes.
+     */
     private int currentPaneSetup = 0;
 
     @Override
@@ -51,23 +54,41 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
 
         int panes = getResources().getInteger(R.integer.panes);
         if (currentPaneSetup != panes) {
+            Log.v(TAG, "Changing layout to " + panes + " panes");
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            IrcListFragment listFragment = new IrcListFragment();
+
+            IrcListFragment listFragment;
             if (savedInstanceState == null) {
                 Log.v(TAG, "Creating IrcListFragment");
+                listFragment = new IrcListFragment();
+                listFragment.setRetainInstance(true);
+
                 fragmentTransaction.replace(R.id.sideFragment, listFragment, TAG_IRC_LIST);
-            } else
+            } else {
+                Log.v(TAG, "Retrieving IrcListFragment");
                 listFragment = (IrcListFragment) fragmentManager.findFragmentByTag(TAG_IRC_LIST);
-
+            }
             Fragment ircFragment = fragmentManager.findFragmentByTag(TAG_IRC);
-            if (panes == 1)
-                if (ircFragment != null)
-                    show(fragmentTransaction.hide(listFragment), ircFragment).commit();
-                else
-                    fragmentTransaction.show(listFragment).commit();
-            else if (panes == 2)
-                show(fragmentTransaction.show(listFragment), ircFragment).commit();
 
+            /*
+             * SHOW THINGS CORRECTLY BECAUSE THE PANE SETUP CHANGED
+             * One advantage of doing it like this is that I don't have to
+             * rearrange the BackStack of the FragmentManager
+             */
+            if (panes == 1)
+                if (ircFragment != null) {
+                    Log.v(TAG, "hiding IrcListFragment and showing IrcFragments");
+                    show(fragmentTransaction.hide(listFragment), ircFragment).commit();
+                }
+                else {
+                    Log.v(TAG, "showing IrcListFragments");
+                    fragmentTransaction.show(listFragment).commit();
+                }
+            else if (panes == 2) {
+                Log.v(TAG, "showing IrcListFragments and showing IrcFragments");
+                show(fragmentTransaction.show(listFragment), ircFragment).commit();
+            }
+            currentPaneSetup = panes;
         }
     }
 
@@ -103,7 +124,6 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
 
     @Override
     public boolean onClick(IrcEntry entry) {
-        Log.v(TAG, "Creating IrcFragment");
         addIrcFragment(IrcFragment.create("unseenspace", "", IrcEntry.Template.TWITCH));
         return true;
     }

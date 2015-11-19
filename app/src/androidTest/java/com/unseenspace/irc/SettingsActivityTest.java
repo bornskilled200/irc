@@ -1,15 +1,20 @@
 package com.unseenspace.irc;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.ListPreference;
+import android.text.TextUtils;
 
 import com.unseenspace.android.Tests;
 import com.unseenspace.android.Themes;
@@ -20,6 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -44,18 +53,6 @@ public class SettingsActivityTest {
     public void before() {
         if (ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
             ActivityCompat.requestPermissions(activityRule.getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-    }
-
-    @Test
-    public void testDebuggable() {
-        ApplicationInfo appInfo = activityRule.getActivity().getApplicationInfo();
-
-        assertTrue((appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
-    }
-
-    @Test
-    public void testExternalWrite() {
-        assertEquals(PackageManager.PERMISSION_GRANTED, ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE));
     }
 
     @Test
@@ -92,5 +89,42 @@ public class SettingsActivityTest {
 
         assertThat(screenshot.getPixel(0, 0), is(Themes.getColor(activity, R.attr.colorPrimaryDark)));
         assertThat(screenshot.getPixel(0, Tests.getStatusBarHeight(activity) + 1), is(Themes.getColor(activity, R.attr.colorPrimary)));
+    }
+
+    @Test
+    public void testChangeTheme() throws IOException {
+        changeTheme("Light", 0, .5, Color.parseColor("#ff303030")); //<color name="material_grey_50">#fffafafa</color>
+        changeTheme("Dark", 0, .5, Color.parseColor("#ff303030")); //<color name="material_grey_850">#ff303030</color>
+    }
+
+    /* UTILITY FUNCTIONS */
+    public Bitmap changeTheme(final String filter, double x, double y, int color) throws IOException {
+        SettingsActivity activity = activityRule.getActivity();
+        SettingsFragment settingsFragment = (SettingsFragment) activity.getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
+        final ListPreference preference = (ListPreference) settingsFragment.findPreference(activity.getResources().getString(R.string.pref_theme));
+
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                preference.setValue(filter(preference.getEntryValues(), filter).iterator().next().toString());
+            }
+        });
+        instrumentation.waitForIdleSync();
+
+        Bitmap screenshot = BitmapFactory.decodeFile(Tests.screenshot(activity, filter).getCanonicalPath());
+        assertThat(screenshot.getPixel((int)(screenshot.getWidth()*x), (int)(screenshot.getHeight()*y)), is(color));
+
+        return screenshot;
+    }
+
+    public Iterable<CharSequence> filter(CharSequence[] chars, CharSequence filter)
+    {
+        ArrayList<CharSequence> filtered = new ArrayList<>();
+        for (CharSequence string : chars) {
+            if (TextUtils.indexOf(string, filter) != -1)
+                filtered.add(string);
+        }
+        return filtered;
     }
 }

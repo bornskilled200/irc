@@ -39,6 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @param activity the main activity
      */
     public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
+        navigationView.inflateHeaderView(R.layout.nav_header);
         navigationView.setCheckedItem(R.id.nav_home);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                     @Override

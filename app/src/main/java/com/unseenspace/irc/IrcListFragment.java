@@ -1,7 +1,10 @@
 package com.unseenspace.irc;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,13 +12,11 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.unseenspace.android.HeaderCursorRecyclerViewAdapter;
+import com.unseenspace.android.ScrollFloatingActionButtonScrollingListener;
 import com.unseenspace.android.Themes;
 
 import java.util.Collections;
@@ -44,6 +46,7 @@ import java.util.Collections;
  */
 public class IrcListFragment extends Fragment {
     private static final String TAG = "IrcListFragment";
+    public static final String INTENT_REFRESH = "IrcListFragment.refresh()";
 
     private IrcListener ircListener;
     private IrcOpenHelper openHelper;
@@ -103,11 +106,25 @@ public class IrcListFragment extends Fragment {
 
             enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
             enterLandscapeAnimation.setInterpolator(interpolator);
+
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    refresh();
+                }
+            }, new IntentFilter(INTENT_REFRESH));
         }
 
         AsyncTaskCompat.executeParallel(new PopulateList(view), openHelper);
 
         return view;
+    }
+
+    public void refresh()
+    {
+        View view = getView();
+
+        AsyncTaskCompat.executeParallel(new RefreshList(view), openHelper);
     }
 
     @Override
@@ -121,9 +138,9 @@ public class IrcListFragment extends Fragment {
     }
 
     private void createIrc() {
-        AsyncTaskCompat.executeParallel(new AsyncTask<Void, Void, Cursor>() {
+        AsyncTaskCompat.executeParallel(new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Cursor doInBackground(Void... params) {
+            protected Void doInBackground(Void... params) {
                 SQLiteDatabase writable = openHelper.getWritableDatabase();
                 writable.beginTransaction();
                 try {
@@ -138,13 +155,12 @@ public class IrcListFragment extends Fragment {
                 } finally {
                     writable.endTransaction();
                 }
-                return writable.query(IrcEntry.TABLE_NAME, null, null, null, null, null, null);
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Cursor cursor) {
-                //IrcRecyclerAdapter adapter = (IrcRecyclerAdapter) recyclerView.getAdapter();
-                //adapter.changeCursor(cursor);
+            protected void onPostExecute(Void aVoid) {
+                LocalBroadcastManager.getInstance(getContext()).sendBroadcastSync(new Intent(INTENT_REFRESH));
 
                 Toast.makeText(getActivity(), "creating irc not really", Toast.LENGTH_SHORT).show();
             }
@@ -172,11 +188,11 @@ public class IrcListFragment extends Fragment {
         }
     }
 
-    private class IrcRecyclerAdapter extends HeaderCursorRecyclerViewAdapter<IrcItemHolder> {
+    private static class IrcRecyclerAdapter extends HeaderCursorRecyclerViewAdapter<IrcItemHolder> {
         private final Drawable drawable;
 
-        public IrcRecyclerAdapter(Cursor cursor) {
-            super(IrcListFragment.this.getContext(), cursor, Collections.<Section>emptyList());
+        public IrcRecyclerAdapter(Context context, Cursor cursor) {
+            super(context, cursor, Collections.<Section>emptyList());
             drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
         }
 
@@ -187,7 +203,7 @@ public class IrcListFragment extends Fragment {
 
         @Override
         public void onBindItemViewHolder(IrcItemHolder itemHolder, Cursor cursor) {
-            Resources resources = getResources();
+            Resources resources = getContext().getResources();
             itemHolder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
             itemHolder.name.setText(resources.getString(R.string.item_name, cursor.getString(cursor.getColumnIndex(IrcEntry.COLUMN_NAME))));
             itemHolder.score.setText(resources.getString(R.string.item_score, cursor.getInt(cursor.getColumnIndex(IrcEntry._ID))));
@@ -206,20 +222,6 @@ public class IrcListFragment extends Fragment {
 
     private class PopulateList extends AsyncTask<IrcOpenHelper, Void, Cursor> {
         private final View view;
-
-        private SwipeRefreshLayout swipeRefreshLayout;
-        private SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 1000);
-            }
-        };
         private View.OnClickListener onClickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 createIrc();
@@ -245,13 +247,9 @@ public class IrcListFragment extends Fragment {
             floatingActionButton.setVisibility(View.VISIBLE);
             floatingActionButton.setOnClickListener(onClickListener);
 
-            swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.contentView);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
-
             final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            recyclerView.setAdapter(new IrcRecyclerAdapter(cursor));
+            recyclerView.setAdapter(new IrcRecyclerAdapter(IrcListFragment.this.getContext(), cursor));
+            recyclerView.addOnScrollListener(new ScrollFloatingActionButtonScrollingListener(getContext(), floatingActionButton));
             recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
                 GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
                     @Override
@@ -269,6 +267,29 @@ public class IrcListFragment extends Fragment {
             });
 
 
+        }
+    }
+
+    private static class RefreshList extends AsyncTask<IrcOpenHelper, Void, Cursor> {
+        private final View view;
+
+        public RefreshList(View view) {
+            this.view = view;
+        }
+
+        @Override
+        protected Cursor doInBackground(IrcOpenHelper... params) {
+            SQLiteDatabase readable = params[0].getReadableDatabase();
+            return readable.query(IrcEntry.TABLE_NAME, null, null, null, null, null, null);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+            recyclerView.setVisibility(View.VISIBLE);
+
+            IrcRecyclerAdapter adapter = (IrcRecyclerAdapter) recyclerView.getAdapter();
+            adapter.changeCursor(cursor);
         }
     }
 }

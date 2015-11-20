@@ -8,8 +8,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -18,14 +16,17 @@ import android.view.animation.Interpolator;
 import com.unseenspace.irc.R;
 
 /**
- *
+ * Alternative approach to animation FloatingActionButton out when scrolled
+ * Benefits is that, if you are not using any other CoordinatorLayout.Behavior that return true on onStartNestedScroll (like AppBarLayout)
+ * You will get the edge glow from over scrolling
  */
-public class ScrollFloatingActionButtonBehavior extends FloatingActionButton.Behavior {
+public class ScrollFloatingActionButtonScrollingListener extends RecyclerView.OnScrollListener {
     private final Interpolator interpolator;
     private boolean mIsAnimatingOut = false;
+    private FloatingActionButton floatingActionButton;
 
-    public ScrollFloatingActionButtonBehavior(Context context, AttributeSet attrs) {
-        super();
+    public ScrollFloatingActionButtonScrollingListener(Context context, FloatingActionButton floatingActionButton) {
+        this.floatingActionButton = floatingActionButton;
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -34,21 +35,14 @@ public class ScrollFloatingActionButtonBehavior extends FloatingActionButton.Beh
             interpolator = new FastOutSlowInInterpolator();
     }
 
-
     @Override
-    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
-
-        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
-    }
-
-    @Override
-    public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-        if (dyConsumed > 0 && !mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
+    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        if (dy > 0 && !mIsAnimatingOut && floatingActionButton.getVisibility() == View.VISIBLE) {
             // User scrolled down and the FAB is currently visible -> hide the FAB
-            animateOut(child);
-        } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
+            animateOut(floatingActionButton);
+        } else if (dy < 0 && floatingActionButton.getVisibility() != View.VISIBLE) {
             // User scrolled up and the FAB is currently not visible -> show the FAB
-            animateIn(child);
+            animateIn(floatingActionButton);
         }
     }
 
@@ -58,11 +52,11 @@ public class ScrollFloatingActionButtonBehavior extends FloatingActionButton.Beh
         anim.setInterpolator(interpolator);
         anim.setAnimationListener(new Animation.AnimationListener() {
             public void onAnimationStart(Animation animation) {
-                ScrollFloatingActionButtonBehavior.this.mIsAnimatingOut = true;
+                ScrollFloatingActionButtonScrollingListener.this.mIsAnimatingOut = true;
             }
 
             public void onAnimationEnd(Animation animation) {
-                ScrollFloatingActionButtonBehavior.this.mIsAnimatingOut = false;
+                ScrollFloatingActionButtonScrollingListener.this.mIsAnimatingOut = false;
                 button.setVisibility(View.GONE);
             }
 

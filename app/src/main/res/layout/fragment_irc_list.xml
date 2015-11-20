@@ -6,18 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/contentView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone" > <!-- GONE is default until I load RecyclerView, SwipeRefreshLayout crashes if scrolled-->
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -37,7 +32,6 @@
         android:clickable="true"
         android:src="@drawable/ic_add_black_24dp"
         style="@style/FloatingActionButton"
-        app:layout_behavior="com.unseenspace.android.ScrollFloatingActionButtonBehavior"
         android:visibility="gone" /> <!-- GONE is default until I load RecyclerView-->
 
 </android.support.design.widget.CoordinatorLayout>

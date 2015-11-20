@@ -4,7 +4,6 @@
     android:layout_height="192dp"
     android:padding="16dp"
     android:background="?attr/colorPrimaryDark"
-    android:theme="?attr/navigationHeaderStyle"
     android:orientation="vertical"
     android:gravity="bottom">
 

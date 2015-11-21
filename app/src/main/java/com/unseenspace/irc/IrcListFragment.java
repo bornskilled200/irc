@@ -248,6 +248,7 @@ public class IrcListFragment extends Fragment {
             floatingActionButton.setOnClickListener(onClickListener);
 
             final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+            recyclerView.setVisibility(View.VISIBLE);
             recyclerView.setAdapter(new IrcRecyclerAdapter(IrcListFragment.this.getContext(), cursor));
             recyclerView.addOnScrollListener(new ScrollFloatingActionButtonScrollingListener(getContext(), floatingActionButton));
             recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {

@@ -107,6 +107,7 @@ public class IrcListFragment extends Fragment {
             enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
             enterLandscapeAnimation.setInterpolator(interpolator);
 
+
             LocalBroadcastManager.getInstance(getContext()).registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -114,6 +115,9 @@ public class IrcListFragment extends Fragment {
                 }
             }, new IntentFilter(INTENT_REFRESH));
         }
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+        recyclerView.setAdapter(new NullAdapter());
 
         AsyncTaskCompat.executeParallel(new PopulateList(view), openHelper);
 
@@ -248,7 +252,6 @@ public class IrcListFragment extends Fragment {
             floatingActionButton.setOnClickListener(onClickListener);
 
             final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
-            recyclerView.setVisibility(View.VISIBLE);
             recyclerView.setAdapter(new IrcRecyclerAdapter(IrcListFragment.this.getContext(), cursor));
             recyclerView.addOnScrollListener(new ScrollFloatingActionButtonScrollingListener(getContext(), floatingActionButton));
             recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
@@ -268,6 +271,23 @@ public class IrcListFragment extends Fragment {
             });
 
 
+        }
+    }
+
+    private static class NullAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+    {
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return null;
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
         }
     }
 

@@ -1,5 +1,7 @@
 package com.unseenspace.irc;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,22 +26,19 @@ import android.widget.TextView;
  */
 @SuppressWarnings("SameParameterValue")
 public class IrcCreateFragment extends Fragment {
-
     private final static String TAG = "IrcCreateFragment";
     private static final String EXTRA_IMAGE = "ShootActivity:image";
     private static final String USERNAME = "USERNAME_PARAMETER";
     private static final String PASSWORD = "PASSWORD_PARAMETER";
     private static final String TEMPLATE = "TEMPLATE_PARAMETER";
 
-    private TextView textBox;
-    private String channel;
     private Animation enterPortraitAnimation;
     private Animation exitPortraitAnimation;
     private Animation enterLandscapeAnimation;
     private Animation exitLandscapeAnimation;
+    private IrcOpenHelper openHelper;
 
     @SuppressWarnings("SameParameterValue")
-
     public static IrcCreateFragment create(IrcEntry.Template template) {
         Log.v(TAG, "create(" + template + ")");
 
@@ -72,34 +71,49 @@ public class IrcCreateFragment extends Fragment {
         return string == null ? IrcEntry.Template.IRC : IrcEntry.Template.valueOf(string);
     }
 
+    private long addIrc(IrcEntry.Template template, String name, String ip, String channel, String username, String password) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(IrcEntry.COLUMN_TEMPLATE, template.name());
+        values.put(IrcEntry.COLUMN_NAME, name);
+        values.put(IrcEntry.COLUMN_IP, ip);
+        values.put(IrcEntry.COLUMN_CHANNEL, channel);
+        values.put(IrcEntry.COLUMN_USERNAME, username);
+        values.put(IrcEntry.COLUMN_PASSWORD, password);
+
+        // Insert the new row, returning the primary key value of the new row
+        return db.insert(IrcEntry.TABLE_NAME, null, values);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_irc, container, false);
 
-        textBox = (TextView) view.findViewById(R.id.textBox);
-        EditText messageBox = (EditText) view.findViewById(R.id.messageBox);
-
         if (savedInstanceState == null) {
+            openHelper = new IrcOpenHelper(getContext());
+
+            Interpolator interpolator;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                interpolator = AnimationUtils.loadInterpolator(getContext(), android.R.interpolator.fast_out_slow_in);
+            else
+                interpolator = new FastOutSlowInInterpolator();
+
+            enterPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right_full);
+            enterPortraitAnimation.setInterpolator(interpolator);
+
+            exitPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_right_full);
+            exitPortraitAnimation.setInterpolator(interpolator);
+
+            enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
+            enterLandscapeAnimation.setInterpolator(interpolator);
+
+            exitLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_child_bottom);
+            exitLandscapeAnimation.setInterpolator(interpolator);
         }
 
-        Interpolator interpolator;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            interpolator = AnimationUtils.loadInterpolator(getContext(), android.R.interpolator.fast_out_slow_in);
-        else
-            interpolator = new FastOutSlowInInterpolator();
-
-        enterPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right_full);
-        enterPortraitAnimation.setInterpolator(interpolator);
-
-        exitPortraitAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_right_full);
-        exitPortraitAnimation.setInterpolator(interpolator);
-
-        enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
-        enterLandscapeAnimation.setInterpolator(interpolator);
-
-        exitLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_child_bottom);
-        exitLandscapeAnimation.setInterpolator(interpolator);
         return view;
     }
 

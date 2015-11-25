@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,9 +31,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.unseenspace.android.HeaderCursorRecyclerViewAdapter;
+import com.unseenspace.android.RecyclerViews;
 import com.unseenspace.android.ScrollFloatingActionButtonScrollingListener;
-import com.unseenspace.android.Themes;
 
 import java.util.Collections;
 
@@ -47,6 +48,7 @@ import java.util.Collections;
 public class IrcListFragment extends Fragment {
     private static final String TAG = "IrcListFragment";
     public static final String INTENT_REFRESH = "IrcListFragment.refresh()";
+    private static final String INTENT_CREATE_IRC = "IrcListFragment.create()";
 
     private IrcListener ircListener;
     private IrcOpenHelper openHelper;
@@ -54,6 +56,13 @@ public class IrcListFragment extends Fragment {
     private Animation enterLandscapeAnimation;
     private Animation exitPortraitAnimation;
     private Animation enterPortraitAnimation;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refresh();
+        }
+    };
+    private IntentFilter filter = new IntentFilter(INTENT_REFRESH);
 
     @Override
     public void onDetach() {
@@ -68,20 +77,16 @@ public class IrcListFragment extends Fragment {
             ircListener = (IrcListener) context;
     }
 
-    private long addIrc(IrcEntry.Template template, String name, String ip, String channel, String username, String password) {
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
+    }
 
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(IrcEntry.COLUMN_TEMPLATE, template.name());
-        values.put(IrcEntry.COLUMN_NAME, name);
-        values.put(IrcEntry.COLUMN_IP, ip);
-        values.put(IrcEntry.COLUMN_CHANNEL, template.getChannel(channel, username));
-        values.put(IrcEntry.COLUMN_USERNAME, username);
-        values.put(IrcEntry.COLUMN_PASSWORD, password);
-
-        // Insert the new row, returning the primary key value of the new row
-        return db.insert(IrcEntry.TABLE_NAME, null, values);
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiver);
     }
 
     @Override
@@ -106,18 +111,10 @@ public class IrcListFragment extends Fragment {
 
             enterLandscapeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_child_bottom);
             enterLandscapeAnimation.setInterpolator(interpolator);
-
-
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    refresh();
-                }
-            }, new IntentFilter(INTENT_REFRESH));
         }
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
-        recyclerView.setAdapter(new NullAdapter());
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(new RecyclerViews.NullAdapter());
 
         AsyncTaskCompat.executeParallel(new PopulateList(view), openHelper);
 
@@ -142,6 +139,7 @@ public class IrcListFragment extends Fragment {
     }
 
     private void createIrc() {
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcastSync(new Intent(INTENT_CREATE_IRC));
         AsyncTaskCompat.executeParallel(new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -177,27 +175,30 @@ public class IrcListFragment extends Fragment {
 
     private static class IrcItemHolder extends RecyclerView.ViewHolder {
 
-        private final ImageView target;
+        private final ImageView image;
         private final IrcEntry irc;
         private final TextView name;
         private final TextView score;
 
         public IrcItemHolder(ViewGroup parent) {
-            super(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shoot, parent, false));
+            super(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_irc, parent, false));
 
             irc = null;
-            target = (ImageView) itemView.findViewById(R.id.shoot_target);
-            name = (TextView) itemView.findViewById(R.id.shoot_name);
-            score = (TextView) itemView.findViewById(R.id.shoot_score);
+            image = (ImageView) itemView.findViewById(R.id.item_image);
+            name = (TextView) itemView.findViewById(R.id.item_name);
+            score = (TextView) itemView.findViewById(R.id.item_subtitle);
         }
     }
 
     private static class IrcRecyclerAdapter extends HeaderCursorRecyclerViewAdapter<IrcItemHolder> {
-        private final Drawable drawable;
+        private final ColorGenerator generator;
+        private final TextDrawable.IBuilder builder;
 
         public IrcRecyclerAdapter(Context context, Cursor cursor) {
             super(context, cursor, Collections.<Section>emptyList());
-            drawable = Themes.getDrawable(getContext(), R.attr.itemImage);
+            builder = TextDrawable.builder().round();
+            generator = ColorGenerator.DEFAULT;
+
         }
 
         @Override
@@ -208,8 +209,9 @@ public class IrcListFragment extends Fragment {
         @Override
         public void onBindItemViewHolder(IrcItemHolder itemHolder, Cursor cursor) {
             Resources resources = getContext().getResources();
-            itemHolder.target.setImageDrawable(drawable);//R.drawable.ic_adjust_white_48dp);
-            itemHolder.name.setText(resources.getString(R.string.item_name, cursor.getString(cursor.getColumnIndex(IrcEntry.COLUMN_NAME))));
+            String name = resources.getString(R.string.item_name, cursor.getString(cursor.getColumnIndex(IrcEntry.COLUMN_NAME)));
+            itemHolder.image.setImageDrawable(builder.build(name.length() == 0 ? "U" : name.substring(0, 1), generator.getColor(name)));//R.drawable.ic_adjust_white_48dp);
+            itemHolder.name.setText(name);
             itemHolder.score.setText(resources.getString(R.string.item_score, cursor.getInt(cursor.getColumnIndex(IrcEntry._ID))));
         }
 
@@ -251,7 +253,7 @@ public class IrcListFragment extends Fragment {
             floatingActionButton.setVisibility(View.VISIBLE);
             floatingActionButton.setOnClickListener(onClickListener);
 
-            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
             recyclerView.setAdapter(new IrcRecyclerAdapter(IrcListFragment.this.getContext(), cursor));
             recyclerView.addOnScrollListener(new ScrollFloatingActionButtonScrollingListener(getContext(), floatingActionButton));
             recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
@@ -274,23 +276,6 @@ public class IrcListFragment extends Fragment {
         }
     }
 
-    private static class NullAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-    {
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        }
-
-        @Override
-        public int getItemCount() {
-            return 0;
-        }
-    }
-
     private static class RefreshList extends AsyncTask<IrcOpenHelper, Void, Cursor> {
         private final View view;
 
@@ -306,7 +291,7 @@ public class IrcListFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Cursor cursor) {
-            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler);
+            final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
             recyclerView.setVisibility(View.VISIBLE);
 
             IrcRecyclerAdapter adapter = (IrcRecyclerAdapter) recyclerView.getAdapter();

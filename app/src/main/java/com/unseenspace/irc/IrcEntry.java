@@ -6,6 +6,9 @@ import org.pircbotx.Configuration;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.hooks.Listener;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * table name and column names of an IRC row in the sql database
  * Created by madsk_000 on 11/5/2015.
@@ -33,14 +36,8 @@ public class IrcEntry implements BaseColumns{
                         .addServer("irc.twitch.tv")
                         .setName(username) //Your twitch.tv username
                         .setServerPassword(password) //Your oauth password from http://twitchapps.com/tmi
-                        .addAutoJoinChannel("#" + username) //Some twitch channel
-
+                        .addAutoJoinChannels(((channel == null || channel.length() == 0) ? Collections.singleton("#" + username) : Arrays.asList(channel.split(" "))))
                         .addListener(listener).buildConfiguration();
-            }
-
-            @Override
-            public String getChannel(String channel, String username) {
-                return (channel == null || channel.length() == 0) ? "#" + username : channel;
             }
         }, IRC {
             @Override
@@ -53,15 +50,8 @@ public class IrcEntry implements BaseColumns{
 
                         .addListener(listener).buildConfiguration();
             }
-
-            @Override
-            public String getChannel(String channel, String username) {
-                return channel;
-            }
         };
 
         public abstract Configuration createConfiguration(String ip, String channel, String username, String password, Listener listener);
-
-        public abstract String getChannel(String channel, String username);
     }
 }

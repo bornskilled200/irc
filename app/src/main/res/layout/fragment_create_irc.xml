@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
             android:inputType="textPersonName"
-            android:hint="@string/username_hint">
+            android:hint="@string/name_hint">
         </EditText>
 
         <EditText
@@ -37,8 +37,7 @@
             android:id="@+id/channel"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:inputType="number"
-            android:hint="@string/port_hint">
+            android:hint="@string/channel_hint">
         </EditText>
 
         <EditText

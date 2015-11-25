@@ -1,10 +1,12 @@
 package com.unseenspace.irc;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,6 +35,8 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import java.io.IOException;
 import java.util.Locale;
 
+import hugo.weaving.DebugLog;
+
 /**
  * a fragment showing the given irc
  * <p/>
@@ -45,9 +49,13 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
 
     private final static String TAG = "IrcFragment";
     private static final String EXTRA_IMAGE = "ShootActivity:image";
+    private static final String SERVER = "SERVER_PARAMETER";
+    private static final String CHANNELS = "CHANNELS_PARAMETER";
     private static final String USERNAME = "USERNAME_PARAMETER";
     private static final String PASSWORD = "PASSWORD_PARAMETER";
     private static final String TEMPLATE = "TEMPLATE_PARAMETER";
+    public static final String TTS_INITIALIZED = "TTS_INITIALIZED";
+    public static final String IRC_CONNECTED = "IRC_CONNECTED";
 
     private TextView textBox;
     private PircBotX bot;
@@ -59,9 +67,8 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
     private Animation enterLandscapeAnimation;
     private Animation exitLandscapeAnimation;
 
+    @DebugLog
     public static IrcFragment create(String username, String password, IrcEntry.Template template) {
-        Log.v(TAG, "create(" + username + ", String password, " + template + ")");
-
         IrcFragment ircFragment = new IrcFragment();
 
         // Get arguments passed in, if any
@@ -77,6 +84,53 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
         return ircFragment;
     }
 
+    @DebugLog
+    public static IrcFragment create(String server, String channels, String username, String password, IrcEntry.Template template) {
+        IrcFragment ircFragment = new IrcFragment();
+
+        // Get arguments passed in, if any
+        Bundle args = ircFragment.getArguments();
+        if (args == null)
+            args = new Bundle();
+
+        args.putString(SERVER, server);
+        args.putString(CHANNELS, channels);
+        args.putString(USERNAME, username);
+        args.putString(PASSWORD, password);
+        args.putString(TEMPLATE, template.name());
+        ircFragment.setArguments(args);
+
+        return ircFragment;
+    }
+
+    @DebugLog
+    private String getServer() {
+        Bundle arguments = getArguments();
+        if (arguments == null)
+            return "";
+        String string = arguments.getString(SERVER);
+        return string == null ? "" : string;
+    }
+
+    @DebugLog
+    private String getChannels() {
+        Bundle arguments = getArguments();
+        if (arguments == null)
+            return "";
+        String string = arguments.getString(CHANNELS);
+        return string == null ? "" : string;
+    }
+
+    @DebugLog
+    private String getUserName() {
+        Bundle arguments = getArguments();
+        if (arguments == null)
+            return "";
+        String string = arguments.getString(USERNAME);
+        return string == null ? "" : string;
+    }
+
+    @DebugLog
     private String getPassword() {
         Bundle arguments = getArguments();
         if (arguments == null)
@@ -85,6 +139,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
         return string == null ? "" : string;
     }
 
+    @DebugLog
     private IrcEntry.Template getTemplate() {
         Bundle arguments = getArguments();
         if (arguments == null)
@@ -104,10 +159,15 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
         if (savedInstanceState == null) {
             tts = new TextToSpeech(getActivity(), this);
 
-            configuration = getTemplate().createConfiguration(null, null, "unseenspace", getPassword(), new ListenerAdapter() {
+            configuration = getTemplate().createConfiguration(getServer(), getChannels(), getUserName(), getPassword(), new ListenerAdapter() {
                 @Override
                 public void onConnect(ConnectEvent event) throws Exception {
-                    alert("Connected", true);
+                    alert("Connected", true, new Runnable(){
+                        @Override
+                        public void run() {
+                            LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(IRC_CONNECTED));
+                        }
+                    });
                 }
 
                 @Override
@@ -139,6 +199,16 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
                         @Override
                         public void run() {
                             IrcFragment.this.alert(text, add);
+                        }
+                    });
+                }
+
+                private void alert(final String text, final boolean add, final Runnable runnable) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            IrcFragment.this.alert(text, add);
+                            runnable.run();
                         }
                     });
                 }
@@ -236,6 +306,7 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
                 Toast.makeText(getActivity(), "Text To Speech failed to initialize", Toast.LENGTH_LONG).show();
             else { // EVERYTHING IS OKAY
                 alert("Initialized", true);
+                LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(TTS_INITIALIZED));
                 bot = new PircBotX(configuration);
                 new Thread(new Runnable() {
                     @Override
@@ -252,5 +323,4 @@ public class IrcFragment extends Fragment implements TextToSpeech.OnInitListener
             }
         }
     }
-
 }

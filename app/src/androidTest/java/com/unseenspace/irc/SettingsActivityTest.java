@@ -9,11 +9,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.espresso.matcher.PreferenceMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.unseenspace.android.Tests;
@@ -30,6 +33,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.PreferenceMatchers.withKey;
+import static android.support.test.espresso.matcher.PreferenceMatchers.withTitleText;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -53,6 +64,7 @@ public class SettingsActivityTest {
     public void before() {
         if (ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
             ActivityCompat.requestPermissions(activityRule.getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        PreferenceManager.getDefaultSharedPreferences(InstrumentationRegistry.getInstrumentation().getTargetContext()).edit().clear().commit();
     }
 
     @Test
@@ -92,30 +104,31 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testChangeTheme() throws IOException {
-        changeTheme("Light", 0, .5, Color.parseColor("#ff303030")); //<color name="material_grey_50">#fffafafa</color>
+    public void testLightTheme() throws IOException, InterruptedException {
+        changeTheme("Light", 0, .5, Color.parseColor("#fffafafa")); //<color name="material_grey_50">#fffafafa</color>
+    }
+
+    @Test
+    public void testDarkTheme() throws IOException, InterruptedException {
         changeTheme("Dark", 0, .5, Color.parseColor("#ff303030")); //<color name="material_grey_850">#ff303030</color>
     }
 
     /* UTILITY FUNCTIONS */
-    public Bitmap changeTheme(final String filter, double x, double y, int color) throws IOException {
+    public Bitmap changeTheme(final String filter, double x, double y, int color) throws IOException, InterruptedException {
         SettingsActivity activity = activityRule.getActivity();
-        SettingsFragment settingsFragment = (SettingsFragment) activity.getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
-        final ListPreference preference = (ListPreference) settingsFragment.findPreference(activity.getResources().getString(R.string.pref_theme));
 
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                preference.setValue(filter(preference.getEntryValues(), filter).iterator().next().toString());
-            }
-        });
-        instrumentation.waitForIdleSync();
+        onView(withText(R.string.pref_theme_title)).perform(click());
+        onView(withText(containsString(filter))).perform(click());
 
-        Bitmap screenshot = BitmapFactory.decodeFile(Tests.screenshot(activity, filter).getCanonicalPath());
+        Bitmap screenshot = BitmapFactory.decodeFile(Tests.screenshot(Tests.getCurrentActivity(), filter).getCanonicalPath());
         assertThat(screenshot.getPixel((int)(screenshot.getWidth()*x), (int)(screenshot.getHeight()*y)), is(color));
 
         return screenshot;
+    }
+
+    private String text(int resourceId)
+    {
+        return Tests.getCurrentActivity().getResources().getString(resourceId);
     }
 
     public Iterable<CharSequence> filter(CharSequence[] chars, CharSequence filter)

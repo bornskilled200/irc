@@ -126,11 +126,6 @@ public class SettingsActivityTest {
         return screenshot;
     }
 
-    private String text(int resourceId)
-    {
-        return Tests.getCurrentActivity().getResources().getString(resourceId);
-    }
-
     public Iterable<CharSequence> filter(CharSequence[] chars, CharSequence filter)
     {
         ArrayList<CharSequence> filtered = new ArrayList<>();

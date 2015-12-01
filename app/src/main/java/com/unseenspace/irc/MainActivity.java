@@ -1,17 +1,24 @@
 package com.unseenspace.irc;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class MainActivity extends BaseActivity implements IrcListFragment.IrcListener, FragmentManager.OnBackStackChangedListener {
 
@@ -26,11 +33,10 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
      * What layout this is, 0 for none or taken literally, no panes.
      */
     private int currentPaneSetup = 0;
+    public static final int NOTIFICATION_ONGOING = 1;
 
     /**
      * this gets called after onCreate and given menu is the same as toolbar.getMenu()
-     * @param menu
-     * @return
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -164,8 +170,25 @@ public class MainActivity extends BaseActivity implements IrcListFragment.IrcLis
                 .addToBackStack(null)
                 .commit();
 
+        Log.v(TAG, "Starting Notification");
+        // Gets an instance of the NotificationManager service
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ONGOING, new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.irc_notification)
+                .setContentTitle("Unseen IRC")
+                .setContentText("Not Connected")
+                .setOngoing(true)
+                .build());
+
         if (panes == 1)
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(TAG_IRC_LIST)).show(ircFragment).commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+        super.onDestroy();
     }
 
     @Override

@@ -9,6 +9,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/irc_launcher"
         android:label="@string/app_name"
+        android:name="com.unseenspace.android.LeakyCanaryApplication"
         android:theme="@style/AppTheme.Light"
         android:fullBackupContent="@xml/backup"
         android:screenOrientation="sensor"
@@ -17,7 +18,8 @@
 
         <activity
             android:name="com.unseenspace.irc.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +33,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.unseenspace.irc.MainActivity"/>
         </activity>
+        <service android:name="com.unseenspace.irc.IrcService" />
     </application>
 
 </manifest>

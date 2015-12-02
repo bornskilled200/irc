@@ -4,7 +4,7 @@ apply from : "gradle/checkstyle.gradle"
 apply from : "gradle/findbugs.gradle"
 apply from : "gradle/pmd.gradle"
 apply plugin: 'jacoco'
-apply plugin: 'spoon'
+apply plugin: 'de.felixschulze.gradle.spoon'
 
 check.dependsOn 'checkstyle', 'findbugs', 'pmd'
 

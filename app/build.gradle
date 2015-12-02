@@ -7,13 +7,7 @@ apply plugin: 'jacoco'
 apply plugin: 'spoon'
 
 check.dependsOn 'checkstyle', 'findbugs', 'pmd'
-spoon {
-    debug = true
-    failOnFailure = false
-    failIfNoDeviceConnected = false
-    adbTimeout = 10*60
-    excludedDevices = ['f5adb1a1', 'a6asb224']
-}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -51,6 +45,14 @@ android {
         exclude 'META-INF/LGPL2.1'
         exclude 'LICENSE.txt'
     }
+}
+
+spoon {
+    debug = true
+    failOnFailure = false
+    failIfNoDeviceConnected = false
+    adbTimeout = 10*60
+    excludedDevices = ['f5adb1a1', 'a6asb224']
 }
 
 dependencies {

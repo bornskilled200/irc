@@ -18,7 +18,6 @@ package com.unseenspace.android;
  */
 
 
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -28,19 +27,35 @@ import android.support.v7.widget.RecyclerView;
 /**
  * Created by skyfishjy on 10/31/14.
  * <a href="https://gist.github.com/skyfishjy/443b7448f59be978bc59">Gist</a>
+ *
+ * @param <VH> @{inheritDoc}
  */
 public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
-
+    /**
+     * the current context.
+     */
     private Context mContext;
-
+    /**
+     * cursor of the database query.
+     */
     private Cursor mCursor;
-
+    /**
+     * flag to make sure the data is valid.
+     */
     private boolean mDataValid;
-
+    /**
+     * the row id column.
+     */
     private int mRowIdColumn;
-
+    /**
+     * observer for the dataset.
+     */
     private DataSetObserver mDataSetObserver;
 
+    /**
+     * @param context current context
+     * @param cursor  cursor from a database query
+     */
     public CursorRecyclerViewAdapter(Context context, Cursor cursor) {
         mContext = context;
         mCursor = cursor;
@@ -52,7 +67,12 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         }
     }
 
-    protected DataSetObserver newDataSetObserver(){
+    /**
+     * convenience method and can be overridden by an extending class to change the observer.
+     *
+     * @return a new DataSetObserver
+     */
+    protected DataSetObserver newDataSetObserver() {
         return new NotifyingDataSetObserver();
     }
 
@@ -68,6 +88,10 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return mContext;
     }
 
+    /**
+     * @return @{inheritDoc}
+     * @{inheritDoc}
+     */
     @Override
     public int getItemCount() {
         if (mDataValid && mCursor != null) {
@@ -76,6 +100,11 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return 0;
     }
 
+    /**
+     * @param position @{inheritDoc}
+     * @return @{inheritDoc}
+     * @{inheritDoc}
+     */
     @Override
     public long getItemId(int position) {
         if (mDataValid && mCursor != null && mCursor.moveToPosition(position)) {
@@ -84,13 +113,28 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return 0;
     }
 
+    /**
+     * @param hasStableIds @{inheritDoc}
+     * @{inheritDoc}
+     */
     @Override
     public void setHasStableIds(boolean hasStableIds) {
         super.setHasStableIds(true);
     }
 
+    /**
+     * override to display data at the current position where the cursor is.
+     *
+     * @param viewHolder the view holder
+     * @param cursor the cursor pointing at a position
+     */
     public abstract void onBindViewHolder(VH viewHolder, Cursor cursor);
 
+    /**
+     * @param viewHolder @{inheritDoc}
+     * @param position   @{inheritDoc}
+     * @{inheritDoc}
+     */
     @Override
     public void onBindViewHolder(VH viewHolder, int position) {
         if (!mDataValid) {
@@ -105,6 +149,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     /**
      * Change the underlying cursor to a new cursor. If there is an existing cursor it will be
      * closed.
+     * @param cursor the cursor to be changed to
      */
     public void changeCursor(Cursor cursor) {
         Cursor old = swapCursor(cursor);
@@ -117,6 +162,9 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * Swap in a new Cursor, returning the old Cursor.  Unlike
      * {@link #changeCursor(Cursor)}, the returned old Cursor is <em>not</em>
      * closed.
+     *
+     * @param newCursor the cursor that will replace the current one
+     * @return the current cursor which is not closed
      */
     public Cursor swapCursor(Cursor newCursor) {
         if (newCursor == mCursor) {
@@ -143,7 +191,13 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return oldCursor;
     }
 
+    /**
+     * simple observer that will notify us when a change happened.
+     */
     private class NotifyingDataSetObserver extends DataSetObserver {
+        /**
+         * @{inheritDoc}
+         */
         @Override
         public void onChanged() {
             super.onChanged();
@@ -151,6 +205,9 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
             notifyDataSetChanged();
         }
 
+        /**
+         * @{inheritDoc}
+         */
         @Override
         public void onInvalidated() {
             super.onInvalidated();

@@ -28,20 +28,37 @@ import java.util.List;
 /**
  * created by tuanchauict <a href="https://gist.github.com/tuanchauict/c6c1eda617523de224c5">link</a>
  * Created by tuanchauict on 11/4/15.
+ *
+ * @param <VH> @{inheritDoc}
  */
 public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder> extends
         CursorRecyclerViewAdapter<VH> {
 
+    /**
+     * type of header for the ViewHolder.
+     */
     public static final int TYPE_HEADER = -1;
+    /**
+     * type of normal for the ViewHolder.
+     */
     public static final int TYPE_NORMAL_ITEM = 0;
 
+    /**
+     * a section.
+     */
     public static class Section {
-        public int itemCount;
-        public String text;
+        /**
+         * an item count.
+         */
+        private int itemCount;
+        /**
+         * the text of the section.
+         */
+        private String text;
 
         /**
          * @param itemCount number item of section. Last section can be anything.
-         * @param text
+         * @param text some text
          */
         public Section(int itemCount, String text) {
             this.itemCount = itemCount;
@@ -49,14 +66,25 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         }
     }
 
+    /**
+     * index of the sections.
+     */
     private SparseArray<String> mSectionsIndexer;
 
+    /**
+     * @param context current context
+     * @param cursor  cursor from a database query
+     * @param sections a list of sections.
+     */
     public HeaderCursorRecyclerViewAdapter(Context context, Cursor cursor, List<Section> sections) {
         super(context, cursor);
         mSectionsIndexer = new SparseArray<>();
         convertSectionList(sections);
     }
 
+    /**
+     * @param sections given sections
+     */
     private void convertSectionList(List<Section> sections) {
         mSectionsIndexer.clear();
         if (sections != null) {
@@ -68,19 +96,28 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         }
     }
 
+    /**
+     * @param cursor the cursor to be changed to
+     * @param sections new set of sections
+     */
     public void changeCursor(Cursor cursor, List<Section> sections) {
         super.changeCursor(cursor);
         convertSectionList(sections);
     }
 
+    /**
+     * @param sections new sections to be changed to
+     */
     public void setSections(List<Section> sections) {
         convertSectionList(sections);
     }
 
     /**
-     * If you have to custom this function, remember to avoid return the value of TYPE_HEADER (-1) for none header position.
-     * @param position
-     * @return
+     * If you have to custom this function, remember to avoid return the value of TYPE_HEADER (-1).
+     * none header position
+     *
+     * @param position position of the item
+     * @return the type of the item
      */
     @Override
     public int getItemViewType(int position) {
@@ -91,6 +128,10 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         }
     }
 
+    /**
+     * @param viewHolder @{inheritDoc}
+     * @param position   @{inheritDoc}
+     */
     @Override
     public void onBindViewHolder(VH viewHolder, int position) {
         if (viewHolder.getItemViewType() == TYPE_HEADER) {
@@ -101,6 +142,10 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         }
     }
 
+    /**
+     * @param position the position
+     * @return number of sections before the given position
+     */
     private int countNumberSectionsBefore(int position) {
         int count = 0;
         for (int i = 0; i < mSectionsIndexer.size(); i++) {
@@ -111,10 +156,24 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         return count;
     }
 
+    /**
+     * @param headerHolder view holder for the header
+     * @param header header's string
+     */
     public abstract void onBindSectionHeaderViewHolder(VH headerHolder, String header);
 
+    /**
+     * @param itemHolder view holder for an item
+     * @param cursor cursor pointing at an row
+     */
     public abstract void onBindItemViewHolder(VH itemHolder, Cursor cursor);
 
+    /**
+     * @{inheritDoc}
+     * @param parent @{inheritDoc}
+     * @param viewType @{inheritDoc}
+     * @return @{inheritDoc}
+     */
     @Override
     public final VH onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
@@ -124,15 +183,33 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
         }
     }
 
+    /**
+     * @param parent the parent
+     * @return a view holder corresponding to the header
+     */
     public abstract VH onCreateSectionHeaderViewHolder(ViewGroup parent);
 
+    /**
+     * @param parent the parent
+     * @param viewType the type of the view
+     * @return a view holder corresponding to the header
+     */
     public abstract VH onCreateItemViewHolder(ViewGroup parent, int viewType);
 
+    /**
+     * @{inheritDoc}
+     * @param viewHolder the view holder
+     * @param cursor the cursor pointing at a position
+     */
     @Override
     public final void onBindViewHolder(VH viewHolder, Cursor cursor) {
         //do nothing
     }
 
+    /**
+     * @{inheritDoc}
+     * @return @{inheritDoc}
+     */
     @Override
     public int getItemCount() {
         int count = super.getItemCount();
@@ -142,6 +219,4 @@ public abstract class HeaderCursorRecyclerViewAdapter<VH extends RecyclerView.Vi
             return 0;
         }
     }
-
-
 }

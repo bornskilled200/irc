@@ -1,12 +1,6 @@
 package com.unseenspace.irc;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorDescription;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -14,47 +8,59 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 /**
- * common base activity so that themes can be set automatically to all activities i create
+ * common base activity so that themes can be set automatically to all activities i create.
+ * Also takes care of theme set in the preference
+ * <p/>
  * Created by madsk_000 on 6/19/2015.
  */
 public abstract class BaseActivity extends AppCompatActivity {
-    protected SharedPreferences preferences;
+    /**
+     * The preference for this app.
+     */
+    private SharedPreferences preferences;
 
+    /**
+     * whether or not we need to refresh the theme when we resume this activity.
+     */
     private boolean refreshTheme;
 
-    private Drawable getIconForAccount(Account account, AccountManager manager) {
-        AuthenticatorDescription[] descriptions =  manager.getAuthenticatorTypes();
-        for (AuthenticatorDescription description: descriptions) {
-            if (description.type.equals(account.type)) {
-                PackageManager pm = getPackageManager();
-                return pm.getDrawable(description.packageName, description.iconId, null);
-            }
-        }
-        return null;
-    }
     /**
-     * When an item from the left drawer gets picked
+     * Get the preferences for this app.
+     *
+     * @return preferences for this app
+     */
+    protected SharedPreferences getPreferences() {
+        return preferences;
+    }
+
+    /**
+     * When an item from the left drawer gets picked.
      *
      * @param navigationView the navigation view
-     * @param activity the main activity
+     * @param drawerLayout   the DrawerLayout
      */
-    public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout, final AppCompatActivity activity) {
+    public void setupDrawerContent(NavigationView navigationView, final DrawerLayout drawerLayout) {
         navigationView.inflateHeaderView(R.layout.nav_header);
         navigationView.setCheckedItem(R.id.nav_home);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
-                        drawerLayout.closeDrawers();
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                drawerLayout.closeDrawers();
 
-                        if (menuItem.getItemId() == R.id.nav_settings)
-                            SettingsActivity.launch(activity);
+                if (menuItem.getItemId() == R.id.nav_settings)
+                    SettingsActivity.launch(BaseActivity.this);
 
-                        return true;
-                    }
-                });
+                return true;
+            }
+        });
     }
 
+    /**
+     * Apply the theme set in the preferences.
+     *
+     * @param savedInstanceState @{inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         preferences = getSharedPreferences(SettingsFragment.SETTINGS_SHARED_PREFERENCES_FILE_NAME, MODE_PRIVATE);
@@ -64,17 +70,21 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * If refreshTheme is set to true, then restart this activity.
+     */
     @Override
     protected void onResume() {
-        if (refreshTheme)
-        {
+        if (refreshTheme) {
             finish();
             startActivity(getIntent());
-        }
-        else
+        } else
             super.onResume();
     }
 
+    /**
+     * Call to set a flag to refresh the theme on resume.
+     */
     public void refreshTheme() {
         refreshTheme = true;
     }

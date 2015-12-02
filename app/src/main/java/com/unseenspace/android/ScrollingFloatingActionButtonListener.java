@@ -2,12 +2,9 @@ package com.unseenspace.android;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -16,16 +13,34 @@ import android.view.animation.Interpolator;
 import com.unseenspace.irc.R;
 
 /**
- * Alternative approach to animation FloatingActionButton out when scrolled
- * Benefits is that, if you are not using any other CoordinatorLayout.Behavior that return true on onStartNestedScroll (like AppBarLayout)
- * You will get the edge glow from over scrolling
+ * Alternative approach to animation FloatingActionButton out when scrolled.
+ * Benefits is that, if you are not using any other CoordinatorLayout.Behavior that return true on onStartNestedScroll
+ * (like AppBarLayout), You will get the edge glow from over scrolling
+ *
+ * code converted from https://github.com/ianhanniballake/cheesesquare/commit/aefa8b57e61266e4ad51bef36e669d69f7fd749c
  */
-public class ScrollFloatingActionButtonScrollingListener extends RecyclerView.OnScrollListener {
+public class ScrollingFloatingActionButtonListener extends RecyclerView.OnScrollListener {
+    /**
+     * the interpolator for fading in and out.
+     */
     private final Interpolator interpolator;
+
+    /**
+     * flag to know if we are animating out.
+     */
     private boolean mIsAnimatingOut = false;
+
+    /**
+     * the floating action button this class is controlling.
+     */
     private FloatingActionButton floatingActionButton;
 
-    public ScrollFloatingActionButtonScrollingListener(Context context, FloatingActionButton floatingActionButton) {
+    /**
+     *
+     * @param context current context
+     * @param floatingActionButton the floating action button this listener will control
+     */
+    public ScrollingFloatingActionButtonListener(Context context, FloatingActionButton floatingActionButton) {
         this.floatingActionButton = floatingActionButton;
 
 
@@ -35,6 +50,12 @@ public class ScrollFloatingActionButtonScrollingListener extends RecyclerView.On
             interpolator = new FastOutSlowInInterpolator();
     }
 
+    /**
+     * @{inheritDoc}
+     * @param recyclerView @{inheritDoc}
+     * @param dx @{inheritDoc}
+     * @param dy @{inheritDoc}
+     */
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         if (dy > 0 && !mIsAnimatingOut && floatingActionButton.getVisibility() == View.VISIBLE) {
@@ -46,17 +67,21 @@ public class ScrollFloatingActionButtonScrollingListener extends RecyclerView.On
         }
     }
 
-    // Same animation that FloatingActionButton.Behavior uses to hide the FAB when the AppBarLayout exits
+
+    /**
+     * Same animation that FloatingActionButton.Behavior uses to hide the FAB when the AppBarLayout exits.
+     * @param button the current button
+     */
     private void animateOut(final FloatingActionButton button) {
         Animation anim = AnimationUtils.loadAnimation(button.getContext(), R.anim.fab_out);
         anim.setInterpolator(interpolator);
         anim.setAnimationListener(new Animation.AnimationListener() {
             public void onAnimationStart(Animation animation) {
-                ScrollFloatingActionButtonScrollingListener.this.mIsAnimatingOut = true;
+                ScrollingFloatingActionButtonListener.this.mIsAnimatingOut = true;
             }
 
             public void onAnimationEnd(Animation animation) {
-                ScrollFloatingActionButtonScrollingListener.this.mIsAnimatingOut = false;
+                ScrollingFloatingActionButtonListener.this.mIsAnimatingOut = false;
                 button.setVisibility(View.GONE);
             }
 
@@ -68,7 +93,10 @@ public class ScrollFloatingActionButtonScrollingListener extends RecyclerView.On
         button.startAnimation(anim);
     }
 
-    // Same animation that FloatingActionButton.Behavior uses to show the FAB when the AppBarLayout enters
+    /**
+     * Same animation that FloatingActionButton.Behavior uses to show the FAB when the AppBarLayout enters.
+     * @param button the current button
+     */
     private void animateIn(FloatingActionButton button) {
         button.setVisibility(View.VISIBLE);
 

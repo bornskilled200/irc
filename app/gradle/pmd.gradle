@@ -1,0 +1,33 @@
+/**
+ * PMD task
+ * Usage:
+ * - place this file under root dir of your project at /gradle  directory
+ * - apply script from your gradle file:
+ * apply from : "{rootDir}/gradle/pmd.gradle"
+ *
+ * To configure pmd ruleset use configs at:
+ * "{rootDir}/config/pmd/pmd-ruleset.xml"
+ *
+ * Xml and HTML reports are stored:
+ * "{project.buildDir}/reports/pmd/"
+ */
+
+apply plugin: 'pmd'
+
+pmd {
+    ignoreFailures = true
+    reportsDir = file("$project.buildDir/outputs/")
+}
+
+task pmd(type: Pmd, dependsOn: assembleDebug) {
+    description 'Run pmd'
+    group 'verification'
+
+    ruleSets = ["java-basic", "java-braces", "java-strings", "java-design", "java-unusedcode"]
+    source = fileTree('src/main/java')
+
+    reports {
+        xml.enabled = true
+        html.enabled = false
+    }
+}

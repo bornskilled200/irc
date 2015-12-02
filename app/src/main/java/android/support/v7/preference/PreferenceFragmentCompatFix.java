@@ -1,12 +1,20 @@
 package android.support.v7.preference;
 
 import android.support.v4.app.DialogFragment;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
+/**
+ * Make it so that InputType is respected.
+ */
 public abstract class PreferenceFragmentCompatFix extends PreferenceFragmentCompat {
+    /**
+     * A tag for this class to find a preference dialog.
+     */
     private static final String FRAGMENT_DIALOG_TAG = "android.support.v7.preference.PreferenceFragment.DIALOG";
 
+    /**
+     * Make it so that InputType is respected.
+     * @param preference @{inheritDoc}
+     */
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
         if (this.getFragmentManager().findFragmentByTag(FRAGMENT_DIALOG_TAG) == null) {

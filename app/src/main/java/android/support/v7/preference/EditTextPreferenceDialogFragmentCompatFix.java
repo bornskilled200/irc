@@ -20,20 +20,42 @@
 package android.support.v7.preference;
 
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.text.Editable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.EditText;
 
+/**
+ * A fix for EditTextPreference so that its respects inputType.
+ */
 @SuppressWarnings("WeakerAccess")
 public class EditTextPreferenceDialogFragmentCompatFix extends PreferenceDialogFragmentCompat {
+    /**
+     * unknown, maybe for layout.
+     */
+    public static final int MAGIC_NUMBER_1 = -1;
+    /**
+     * unknown, maybe for layout.
+     */
+    public static final int MAGIC_NUMBER_2 = -2;
+
+    /**
+     * fix for edit Text.
+     */
     private EditText mEditText;
 
+    /**
+     * Simple constructor.
+     */
     public EditTextPreferenceDialogFragmentCompatFix() {
     }
 
+    /**
+     * Convenience method to create this instance.
+     * @param key unknown
+     * @return an instance of EditTextPreferenceDialogFragmentCompatFix
+     */
     public static EditTextPreferenceDialogFragmentCompatFix newInstance(String key) {
         EditTextPreferenceDialogFragmentCompatFix fragment = new EditTextPreferenceDialogFragmentCompatFix();
         Bundle b = new Bundle(1);
@@ -42,6 +64,10 @@ public class EditTextPreferenceDialogFragmentCompatFix extends PreferenceDialogF
         return fragment;
     }
 
+    /**
+     * @{inheritDoc}
+     * @param view @{inheritDoc}
+     */
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
 
@@ -63,25 +89,42 @@ public class EditTextPreferenceDialogFragmentCompatFix extends PreferenceDialogF
         }
     }
 
+    /**
+     * what this does is unknown to me.
+     * @return unknown
+     */
     private EditTextPreferenceFix getEditTextPreference() {
         return (EditTextPreferenceFix) this.getPreference();
     }
 
+    /**
+     * what this does is unknown to me.
+     * @return unknown
+     */
     protected boolean needInputMethod() {
         return true;
     }
 
+    /**
+     * what this does is unknown to me.
+     * @param dialogView unknown
+     * @param editText unknown
+     */
     protected void onAddEditTextToDialogView(View dialogView, EditText editText) {
         View oldEditText = dialogView.findViewById(android.R.id.edit);
         if (oldEditText != null) {
             ViewGroup container = (ViewGroup) (oldEditText.getParent());
             if (container != null) {
                 container.removeView(oldEditText);
-                container.addView(editText, -1, -2);
+                container.addView(editText, MAGIC_NUMBER_1, MAGIC_NUMBER_2);
             }
         }
     }
 
+    /**
+     * what this does is unknown to me.
+     * @param positiveResult unknown
+     */
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             String value = this.mEditText.getText().toString();

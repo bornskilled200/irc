@@ -6,22 +6,28 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
 /**
- * utility class for getting attributes from the current theme
- *
+ * utility class for getting attributes from the current theme.
+ * <p/>
  * Created by madsk_000 on 11/9/2015.
  */
 @SuppressWarnings("SameParameterValue")
-public class Themes {
-    private Themes(){}
+public final class Themes {
+    /**
+     * Private so it cannot be accidentally instantiated.
+     */
+    private Themes() {
+    }
 
     /**
+     * gets the drawable from the given attribute ID.
+     * this will consider the current theme
      *
      * @param context from activity (this) or fragment (getContext())
-     * @param attr the attribute you want to get
+     * @param attr    the attribute you want to get
      * @return the drawable that the attr points to
      */
     public static Drawable getDrawable(Context context, int attr) {
-        int[] attrs = new int[]{attr /* index 0 */};
+        int[] attrs = new int[]{attr};
 
         // Obtain the styled attributes. 'themedContext' is a context with a
         // theme, typically the current Activity (i.e. 'this')
@@ -39,8 +45,16 @@ public class Themes {
         return drawableFromTheme;
     }
 
+    /**
+     * gets the color from the given attribute ID.
+     * this will consider the current theme
+     *
+     * @param context from activity (this) or fragment (getContext())
+     * @param attr    the attribute you want to get
+     * @return the drawable that the attr points to
+     */
     public static int getColor(Context context, int attr) {
-        int[] attrs = new int[]{attr /* index 0 */};
+        int[] attrs = new int[]{attr};
 
         // Obtain the styled attributes. 'themedContext' is a context with a
         // theme, typically the current Activity (i.e. 'this')

@@ -1,7 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.hugo'
+apply from : "gradle/checkstyle.gradle"
+apply from : "gradle/findbugs.gradle"
+apply from : "gradle/pmd.gradle"
 apply plugin: 'jacoco'
 apply plugin: 'spoon'
+
+check.dependsOn 'checkstyle', 'findbugs', 'pmd'
 
 android {
     compileSdkVersion 23

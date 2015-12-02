@@ -13,8 +13,15 @@ import android.support.v7.widget.Toolbar;
  * Created by madsk_000 on 6/18/2015.
  */
 public class SettingsActivity extends BaseActivity {
+    /**
+     * Intent argument name for 6.0+ transition image.
+     */
     private static final String EXTRA_IMAGE = "SettingsActivity:image";
 
+    /**
+     * @{inheritDoc}
+     * @param savedInstanceState @{inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,13 +32,16 @@ public class SettingsActivity extends BaseActivity {
         if (toolbar != null)
             setSupportActionBar(toolbar);
 
-        final ActionBar ab = getSupportActionBar();
-        if(ab != null)
-            ab.setDisplayHomeAsUpEnabled(true);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
-    public static void launch(AppCompatActivity activity)
-    {
+    /**
+     * convenience method for creating this activity with.
+     * @param activity the current activity
+     */
+    public static void launch(AppCompatActivity activity) {
         Intent intent = new Intent(activity, SettingsActivity.class);
 
         ActivityCompat.startActivity(activity, intent, null);

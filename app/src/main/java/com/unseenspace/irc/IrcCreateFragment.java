@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.Log;
@@ -14,11 +13,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.EditText;
-import android.widget.TextView;
 
 /**
- * a fragment showing the given irc
+ * a fragment showing the given irc.
  * <p/>
  * TextView for the chat
  * EditText for messages to send
@@ -26,18 +23,56 @@ import android.widget.TextView;
  */
 @SuppressWarnings("SameParameterValue")
 public class IrcCreateFragment extends Fragment {
-    private final static String TAG = "IrcCreateFragment";
+    /**
+     * A tag for logging.
+     */
+    private static final String TAG = "IrcCreateFragment";
+    /**
+     * An extra image for transitioning 6.0+.
+     */
     private static final String EXTRA_IMAGE = "ShootActivity:image";
+    /**
+     * Parameter name for username in bundle.
+     */
     private static final String USERNAME = "USERNAME_PARAMETER";
+    /**
+     * Parameter name for password in bundle.
+     */
     private static final String PASSWORD = "PASSWORD_PARAMETER";
+    /**
+     * Parameter name for template in bundle.
+     */
     private static final String TEMPLATE = "TEMPLATE_PARAMETER";
 
-    private Animation enterPortraitAnimation;
-    private Animation exitPortraitAnimation;
+    /**
+     * Animation for this fragment entering landscape.
+     */
     private Animation enterLandscapeAnimation;
+    /**
+     * Animation for this fragment exiting landscape.
+     */
     private Animation exitLandscapeAnimation;
+
+    /**
+     * Animation for this fragment exiting portrait.
+     */
+    private Animation enterPortraitAnimation;
+    /**
+     * Animation for this fragment exiting portrait.
+     */
+    private Animation exitPortraitAnimation;
+
+    /**
+     * Database Open helper for irc table.
+     */
     private IrcOpenHelper openHelper;
 
+    /**
+     * Convenience Method to create this fragment.
+     *
+     * @param template the template that this fragment will use
+     * @return a new instance of IrcCreateFragment
+     */
     @SuppressWarnings("SameParameterValue")
     public static IrcCreateFragment create(IrcEntry.Template template) {
         Log.v(TAG, "create(" + template + ")");
@@ -55,6 +90,12 @@ public class IrcCreateFragment extends Fragment {
         return ircFragment;
     }
 
+    /**
+     * convenience method to check for null and empty string.
+     * if null , will return empty string
+     *
+     * @return will always return a String, never null
+     */
     private String getPassword() {
         Bundle arguments = getArguments();
         if (arguments == null)
@@ -63,15 +104,35 @@ public class IrcCreateFragment extends Fragment {
         return string == null ? "" : string;
     }
 
+    /**
+     * convenience method to check for null and empty string.
+     * if null or empty string, will return Template.IRC
+     * however it will throw an exception if Enum.valueOf is invalid
+     *
+     * @return will always the given template in the arguments
+     * @see com.unseenspace.irc.IrcEntry.Template#IRC
+     */
     private IrcEntry.Template getTemplate() {
         Bundle arguments = getArguments();
         if (arguments == null)
             return IrcEntry.Template.IRC;
         String string = arguments.getString(TEMPLATE);
-        return string == null ? IrcEntry.Template.IRC : IrcEntry.Template.valueOf(string);
+        return string == null || string.length() == 0 ? IrcEntry.Template.IRC : IrcEntry.Template.valueOf(string);
     }
 
-    private long addIrc(IrcEntry.Template template, String name, String ip, String channel, String username, String password) {
+    /**
+     * convenience method to add the irc.
+     *
+     * @param template the template to use
+     * @param name     the name of this irc (for user use)
+     * @param ip       any kind of url
+     * @param channels channels split by a space and prepended with #
+     * @param username username/nick
+     * @param password password
+     * @return the row ID of the newly inserted row, or -1 if an error occurred
+     */
+    private long addIrc(IrcEntry.Template template, String name, String ip, String channels,
+                        String username, String password) {
         SQLiteDatabase db = openHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
@@ -79,7 +140,7 @@ public class IrcCreateFragment extends Fragment {
         values.put(IrcEntry.COLUMN_TEMPLATE, template.name());
         values.put(IrcEntry.COLUMN_NAME, name);
         values.put(IrcEntry.COLUMN_IP, ip);
-        values.put(IrcEntry.COLUMN_CHANNEL, channel);
+        values.put(IrcEntry.COLUMN_CHANNEL, channels);
         values.put(IrcEntry.COLUMN_USERNAME, username);
         values.put(IrcEntry.COLUMN_PASSWORD, password);
 
@@ -87,7 +148,13 @@ public class IrcCreateFragment extends Fragment {
         return db.insert(IrcEntry.TABLE_NAME, null, values);
     }
 
-    @Nullable
+    /**
+     * @{inheritDoc}
+     * @param inflater @{inheritDoc}
+     * @param container @{inheritDoc}
+     * @param savedInstanceState @{inheritDoc}
+     * @return @{inheritDoc}
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_irc, container, false);
@@ -117,7 +184,13 @@ public class IrcCreateFragment extends Fragment {
         return view;
     }
 
-
+    /**
+     * @{inheritDoc}
+     * @param transit @{inheritDoc}
+     * @param enter @{inheritDoc}
+     * @param nextAnim @{inheritDoc}
+     * @return @{inheritDoc}
+     */
     @Override
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         int panes = getResources().getInteger(R.integer.panes);

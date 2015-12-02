@@ -9,14 +9,26 @@ import android.util.Log;
 import android.support.v7.preference.PreferenceFragmentCompatFix;
 
 /**
- * fragment for preferences/settings
+ * fragment for preferences/settings.
  * main logic and where you can get values from preferences
  * Created by madsk_000 on 6/18/2015.
  */
 public class SettingsFragment extends PreferenceFragmentCompatFix implements Preference.OnPreferenceChangeListener {
-    private final static String TAG = "SettingsFragment";
-    public final static String SETTINGS_SHARED_PREFERENCES_FILE_NAME = TAG + ".SETTINGS_SHARED_PREFERENCES_FILE_NAME";
+    /**
+     * A tag for logging.
+     */
+    private static final String TAG = "SettingsFragment";
 
+    /**
+     * The file name for SharedPreferences.
+     */
+    public static final String SETTINGS_SHARED_PREFERENCES_FILE_NAME = TAG + ".SETTINGS_SHARED_PREFERENCES_FILE_NAME";
+
+    /**
+     * @{inheritDoc}
+     * @param bundle @{inheritDoc}
+     * @param rootKey @{inheritDoc}
+     */
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         getPreferenceManager().setSharedPreferencesName(SETTINGS_SHARED_PREFERENCES_FILE_NAME);
@@ -27,6 +39,11 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
         findPreference(getResources().getString(R.string.pref_theme)).setOnPreferenceChangeListener(this);
     }
 
+    /**
+     * Get the current theme specified by preference in resID form.
+     * @param preferences the shared preference we are using now
+     * @return resId of the theme
+     */
     public static int getTheme(SharedPreferences preferences) {
         String string = preferences.getString("pref_theme", "Default");
         switch (string) {
@@ -35,11 +52,18 @@ public class SettingsFragment extends PreferenceFragmentCompatFix implements Pre
                 return R.style.AppTheme_Light_Purple;
             case "Dark+Purple":
                 return R.style.AppTheme_Dark_Purple;
+            default:
+                        Log.e(TAG, "Unknown theme type, " + string);
+            return R.style.AppTheme_Light_Purple;
         }
-        Log.e(TAG, "Unknown theme type, " + string);
-        return R.style.AppTheme_Light_Purple;
     }
 
+    /**
+     * When changing the theme, reset the activity and activities before to apply the theme.
+     * @param preference @{inheritDoc}
+     * @param newValue @{inheritDoc}
+     * @return @{inheritDoc}
+     */
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference.getKey().equals(getResources().getString(R.string.pref_theme))) {

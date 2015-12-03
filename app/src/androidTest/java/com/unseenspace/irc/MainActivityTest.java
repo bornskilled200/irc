@@ -1,25 +1,28 @@
 package com.unseenspace.irc;
 
 import android.Manifest;
-import android.app.Instrumentation;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.unseenspace.android.Tests;
 import com.unseenspace.android.Themes;
-import com.unseenspace.android.test.IntentIdlingResource;
 
-import org.junit.After;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,25 +45,39 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 /**
  *
  */
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
+    public static final Intent IRC_CONNECTED = new Intent(IrcFragment.IRC_CONNECTED);
+    public static final Intent TTS_INITIALIZED = new Intent(IrcFragment.TTS_INITIALIZED);
+    /**
+     *
+     */
     @Rule
     public final ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
     /**
-     * fix for marshmallow's permission model that only allows external write when asked for
-     * compared to
+     * fix for marshmallow's permission model that only allows external write when asked for.
+     * compared to previous android versions
      */
     @Before
     public void before() {
-        if (ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
-            ActivityCompat.requestPermissions(activityRule.getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        MainActivity activity = activityRule.getActivity();
+        int externalWrite = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (externalWrite == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
     }
 
+    /**
+     * Make sure we are using the debuggable release type, giving additional permissions in AndroidManifest.xml.
+     */
     @Test
     public void testDebuggable() {
         ApplicationInfo appInfo = activityRule.getActivity().getApplicationInfo();
@@ -68,11 +85,21 @@ public class MainActivityTest {
         assertTrue((appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
     }
 
+    /**
+     *
+     */
     @Test
     public void testExternalWrite() {
-        assertEquals(PackageManager.PERMISSION_GRANTED, ContextCompat.checkSelfPermission(activityRule.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE));
+        MainActivity activity = activityRule.getActivity();
+
+        int writeExternal = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        assertEquals(PackageManager.PERMISSION_GRANTED, writeExternal);
     }
 
+    /**
+     *
+     * @throws IOException
+     */
     @Test
     public void testPortraitToLandscape() throws IOException {
         MainActivity activity = activityRule.getActivity();
@@ -86,6 +113,10 @@ public class MainActivityTest {
         assertThat(after.getWidth(), greaterThan(after.getHeight()));
     }
 
+    /**
+     *
+     * @throws IOException
+     */
     @Test
     public void testLandscapeToPortrait() throws IOException {
         MainActivity activity = activityRule.getActivity();
@@ -99,6 +130,10 @@ public class MainActivityTest {
         assertThat(after.getWidth(), lessThan(after.getHeight()));
     }
 
+    /**
+     *
+     * @throws IOException
+     */
     @Test
     public void testToolbarColor() throws IOException {
         MainActivity activity = activityRule.getActivity();
@@ -106,34 +141,57 @@ public class MainActivityTest {
         Bitmap screenshot = BitmapFactory.decodeFile(Tests.screenshot(activity, "screenshot").getCanonicalPath());
 
         assertThat(screenshot.getPixel(0, 0), is(Themes.getColor(activity, R.attr.colorPrimaryDark)));
-        assertThat(screenshot.getPixel(0, Tests.getStatusBarHeight(activity) + 1), is(Themes.getColor(activity, R.attr.colorPrimary)));
+
+        int toolbarY = Tests.getStatusBarHeight(activity) + 1;
+        assertThat(screenshot.getPixel(0, toolbarY), is(Themes.getColor(activity, R.attr.colorPrimary)));
     }
 
-    @Test(timeout = 10000)
+    /**
+     *
+     * @throws Throwable
+     */
+    @Test
     public void testConnectLocal() throws Throwable {
+        MainActivity activity = activityRule.getActivity();
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(activity);
+        BroadcastReceiver broadcastReceiver = mock(BroadcastReceiver.class);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(IrcFragment.TTS_INITIALIZED);
+        intentFilter.addAction(IrcFragment.IRC_CONNECTED);
+        broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
+
         Future<Socket> server = Server.one("localhost");
-        IntentIdlingResource intentIdlingResource = null;
         try {
-            MainActivity activity = activityRule.getActivity();
-            Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-
-
             onView(withId(R.id.fab)).perform(click());
 
             onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-            Espresso.registerIdlingResources(intentIdlingResource = new IntentIdlingResource(instrumentation.getTargetContext(), IrcFragment.TTS_INITIALIZED));
+            verify(broadcastReceiver, timeout(100).atLeastOnce())
+                    .onReceive(any(Context.class), argThat(intent(IrcFragment.TTS_INITIALIZED)));
             Tests.screenshot(activity, "tts-initialized");
             onView(withId(R.id.textBox)).check(matches(withText(containsString("Initialized"))));
-            Espresso.unregisterIdlingResources(intentIdlingResource);
 
-            Espresso.registerIdlingResources(intentIdlingResource = new IntentIdlingResource(instrumentation.getTargetContext(), IrcFragment.IRC_CONNECTED));
+            verify(broadcastReceiver, timeout(500).atLeastOnce())
+                    .onReceive(any(Context.class), argThat(intent(IrcFragment.IRC_CONNECTED)));
             Tests.screenshot(activity, "irc-connected");
             assertThat(server.get(), notNullValue());
-            Espresso.unregisterIdlingResources(intentIdlingResource);
-
         } finally {
-            Espresso.unregisterIdlingResources(intentIdlingResource);
+            broadcastManager.unregisterReceiver(broadcastReceiver);
             server.cancel(true);
         }
+    }
+
+    private Matcher<Intent> intent(final String action) {
+        return new BaseMatcher<Intent>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(action);
+            }
+
+            @Override
+            public boolean matches(Object item) {
+                return ((Intent) item).getAction().equals(action);
+            }
+        };
     }
 }

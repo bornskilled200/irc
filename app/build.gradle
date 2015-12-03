@@ -77,9 +77,17 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.4.1'
     // Set this dependency to build and run Espresso tests
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
-    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.1'){ exclude module: 'support-annotations' exclude module: 'support-v4' exclude module: 'support-v13' exclude module: 'recyclerview-v7' }
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.1') {
+        exclude module: 'support-annotations'
+        exclude module: 'support-v4'
+        exclude module: 'support-v13'
+        exclude module: 'recyclerview-v7'
+    }
     androidTestCompile 'com.android.support.test.espresso:espresso-idling-resource:2.2.1'
     androidTestCompile 'com.squareup.spoon:spoon-client:1.2.1'
+    androidTestCompile "org.mockito:mockito-core:1.10.19"
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
 }
 
 task jacocoTestReport(type: JacocoReport) {
